@@ -86,7 +86,7 @@ class Module extends \yii\base\Module
     {
         return Yii::getAlias($this->storage) . '/' . $filePath;
     }
-    
+
     /**
      * 生成文件存储路径
      * @return mixed
