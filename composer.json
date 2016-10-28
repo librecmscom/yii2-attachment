@@ -11,11 +11,5 @@
         "psr-4": {
             "yuncms\\attachment\\": ""
         }
-    },
-    "extra": {
-        "asset-vcs-driver-options": {
-            "github-no-api": true
-        },
-        "asset-pattern-skip-version": "(-build|-patch)"
     }
 }
