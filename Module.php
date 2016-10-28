@@ -15,8 +15,15 @@ use yii\helpers\FileHelper;
  */
 class Module extends \yii\base\Module
 {
+
+    /**
+     * @var string 附件存储路径
+     */
     public $storagePath = '@storageRoot';
 
+    /**
+     * @var string 附件访问路径
+     */
     public $storage = '@storage';
 
     /**
@@ -28,9 +35,9 @@ class Module extends \yii\base\Module
     public $dirMode = 0775;
 
     /**
-     * @var string 附件存储格式
+     * @var string 附件存储路径格式
      */
-    public $pathFormat = '{yyyy}/{mm}{dd}/{time}{rand:6}';
+    public $pathFormat = '{yyyy}/{mm}{dd}';
 
     /**
      * @inheritdoc
@@ -56,54 +63,43 @@ class Module extends \yii\base\Module
         return min($maxUpload, $maxPost, $memoryLimit);
     }
 
-
     /**
      * 获取附件的存储路径
-     * @param int $userId
+     * @param string $fileName 文件名不包含路径
      * @return string
      */
-    public function getFilePath($userId)
+    public function getFilePath($fileName)
     {
-        $avatarPath = Yii::getAlias($this->avatarPath) . '/' . $this->getAvatarHome($userId);
-        if (!is_dir($avatarPath)) {
-            FileHelper::createDirectory($avatarPath);
+        $filePath = Yii::getAlias($this->storagePath) . '/' . $this->getFileHome($fileName);
+        if (!is_dir($filePath)) {//递归创建保存目录
+            FileHelper::createDirectory($filePath,$this->dirMode,true);
         }
-        return $avatarPath . substr($userId, -2);
+        return $filePath;
     }
 
     /**
      * 获取附件访问Url
-     * @param int $userId 用户ID
+     * @param string $filePath 附件相对路径
      * @return string
      */
-    public function getFileUrl($path)
+    public function getFileUrl($filePath)
     {
-        return Yii::getAlias($this->storage) . '/' . $this->getFileHome($oriName) . substr($userId, -2);
+        return Yii::getAlias($this->storage) . '/' . $filePath;
     }
-
-
+    
     /**
      * 生成文件存储路径
-     * @param string $fileName
      * @return mixed
      */
-    public function getFileHome($fileName)
+    public function getFileHome()
     {
         $time = time();
         $date = explode('-', date("Y-y-m-d-H-i-s"));
-        $format = str_replace(
+        $path = str_replace(
             ["{yyyy}", "{yy}", "{mm}", "{dd}", "{hh}", "{ii}", "{ss}", "{time}"],
             [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6], $time],
             $this->pathFormat
         );
-        $oriName = substr($oriName, 0, strrpos($oriName, '.'));
-        $oriName = preg_replace("/[\|\?\"\<\>\/\*\\\\]+/", '', $oriName);
-        $format = str_replace("{filename}", $oriName, $format);
-
-        $randNum = rand(1, 10000000000) . rand(1, 10000000000);
-        if (preg_match("/\{rand\:([\d]*)\}/i", $format, $matches)) {
-            $format = preg_replace("/\{rand\:[\d]*\}/i", substr($randNum, 0, $matches[1]), $format);
-        }
-        return $format;
+        return $path;
     }
 }
