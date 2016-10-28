@@ -22,6 +22,9 @@ class Module extends \yii\base\Module
      */
     public $dirMode = 0775;
 
+    /**
+     * @var string 附件存储格式
+     */
     public $pathFormat = '{yyyy}/{mm}{dd}/{time}{rand:6}';
 
     /**
@@ -56,10 +59,11 @@ class Module extends \yii\base\Module
     {
         $time = time();
         $date = explode('-', date("Y-y-m-d-H-i-s"));
-        $format = str_replace(["{yyyy}", "{yy}", "{mm}", "{dd}", "{hh}", "{ii}", "{ss}", "{time}"],
-            [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6], $time], $this->pathFormat);
-
-        //过滤文件名的非法自负,并替换文件名
+        $format = str_replace(
+            ["{yyyy}", "{yy}", "{mm}", "{dd}", "{hh}", "{ii}", "{ss}", "{time}"],
+            [$date[0], $date[1], $date[2], $date[3], $date[4], $date[5], $date[6], $time],
+            $this->pathFormat
+        );
         $oriName = substr($oriName, 0, strrpos($oriName, '.'));
         $oriName = preg_replace("/[\|\?\"\<\>\/\*\\\\]+/", '', $oriName);
         $format = str_replace("{filename}", $oriName, $format);
