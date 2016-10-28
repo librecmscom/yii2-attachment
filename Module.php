@@ -7,7 +7,12 @@
 namespace yuncms\attachment;
 
 use Yii;
+use yii\helpers\FileHelper;
 
+/**
+ * Class Module
+ * @package yuncms\attachment
+ */
 class Module extends \yii\base\Module
 {
     public $storagePath = '@storageRoot';
@@ -53,7 +58,7 @@ class Module extends \yii\base\Module
 
 
     /**
-     * 获取头像的存储路径
+     * 获取附件的存储路径
      * @param int $userId
      * @return string
      */
@@ -67,7 +72,7 @@ class Module extends \yii\base\Module
     }
 
     /**
-     * 获取头像访问Url
+     * 获取附件访问Url
      * @param int $userId 用户ID
      * @return string
      */
@@ -78,10 +83,11 @@ class Module extends \yii\base\Module
 
 
     /**
-     * @param $oriName
+     * 生成文件存储路径
+     * @param string $fileName
      * @return mixed
      */
-    public function getFileHome($oriName)
+    public function getFileHome($fileName)
     {
         $time = time();
         $date = explode('-', date("Y-y-m-d-H-i-s"));
