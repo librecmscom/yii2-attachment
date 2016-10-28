@@ -8,6 +8,7 @@ namespace yuncms\attachment;
 
 use Yii;
 use yii\helpers\FileHelper;
+use yii\web\UploadFile;
 
 /**
  * Class Module
@@ -63,16 +64,27 @@ class Module extends \yii\base\Module
         return min($maxUpload, $maxPost, $memoryLimit);
     }
 
+    public function save($file)
+    {
+        $fileName = rand(1000, 1000000000);
+        if ($file instanceof UploadFile) {
+            return $file->saveAs($this->getFilePath() . $fileName.$file->ext);
+        } else if (file_exists($file)) {
+
+        } else {
+            return false;
+        }
+    }
+
     /**
      * 获取附件的存储路径
-     * @param string $fileName 文件名不包含路径
      * @return string
      */
-    public function getFilePath($fileName)
+    public function getFilePath()
     {
-        $filePath = Yii::getAlias($this->storagePath) . '/' . $this->getFileHome($fileName);
+        $filePath = Yii::getAlias($this->storagePath) . '/' . $this->getFileHome();
         if (!is_dir($filePath)) {//递归创建保存目录
-            FileHelper::createDirectory($filePath,$this->dirMode,true);
+            FileHelper::createDirectory($filePath, $this->dirMode, true);
         }
         return $filePath;
     }
