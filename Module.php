@@ -51,6 +51,32 @@ class Module extends \yii\base\Module
         return min($maxUpload, $maxPost, $memoryLimit);
     }
 
+
+    /**
+     * 获取头像的存储路径
+     * @param int $userId
+     * @return string
+     */
+    public function getFilePath($userId)
+    {
+        $avatarPath = Yii::getAlias($this->avatarPath) . '/' . $this->getAvatarHome($userId);
+        if (!is_dir($avatarPath)) {
+            FileHelper::createDirectory($avatarPath);
+        }
+        return $avatarPath . substr($userId, -2);
+    }
+
+    /**
+     * 获取头像访问Url
+     * @param int $userId 用户ID
+     * @return string
+     */
+    public function getFileUrl($path)
+    {
+        return Yii::getAlias($this->storage) . '/' . $this->getFileHome($oriName) . substr($userId, -2);
+    }
+
+
     /**
      * @param $oriName
      * @return mixed
