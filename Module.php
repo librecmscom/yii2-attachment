@@ -64,13 +64,21 @@ class Module extends \yii\base\Module
         return min($maxUpload, $maxPost, $memoryLimit);
     }
 
+    /**
+     * 保存文件
+     * @param string|UploadedFile $file
+     * @return bool
+     */
     public function save($file)
     {
         $fileName = rand(1000, 1000000000);
         if ($file instanceof UploadedFile) {
-            return $file->saveAs($this->getFilePath() . $fileName . $file->extension);
+            $filePath = $this->getFilePath() . $fileName . '.' . $file->extension;
+            return $file->saveAs($filePath);
         } else if (file_exists($file)) {//如果不是上次的文件，那么直接移动该文件
-            return rename($file, $this->getFilePath() . $fileName, null);
+            $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+            $filePath = $this->getFilePath() . $fileName . '.' . $extension;
+            return rename($file, $filePath);
         } else {
             return false;
         }
