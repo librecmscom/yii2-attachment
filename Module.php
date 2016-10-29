@@ -7,8 +7,8 @@
 namespace yuncms\attachment;
 
 use Yii;
+use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
-use yii\web\UploadFile;
 
 /**
  * Class Module
@@ -67,10 +67,10 @@ class Module extends \yii\base\Module
     public function save($file)
     {
         $fileName = rand(1000, 1000000000);
-        if ($file instanceof UploadFile) {
-            return $file->saveAs($this->getFilePath() . $fileName.$file->ext);
-        } else if (file_exists($file)) {
-
+        if ($file instanceof UploadedFile) {
+            return $file->saveAs($this->getFilePath() . $fileName . $file->extension);
+        } else if (file_exists($file)) {//如果不是上次的文件，那么直接移动该文件
+            return rename($file, $this->getFilePath() . $fileName, null);
         } else {
             return false;
         }
