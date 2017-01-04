@@ -25,13 +25,15 @@ use yuncms\attachment\assets\PluploadAsset;
  */
 class Plupload extends InputWidget
 {
-
     /**
      * @var array the HTML attributes for the widget container tag.
      * @see \yii\helpers\Html::renderTagAttributes() for details on how attributes are being rendered.
      */
     public $options;
 
+    /**
+     * @var array
+     */
     public $clientOptions = [];
 
     /**
@@ -96,29 +98,28 @@ class Plupload extends InputWidget
         $bundle = PluploadAsset::register($this->getView());
 
         /** @var \yuncms\attachment\Module $module */
-        $module = Yii::$app->getModule('system');
-        $attachment = $module->attachment;
+        $module = Yii::$app->getModule('attachment');
 
         $this->clientOptions = ArrayHelper::merge([
             'file_data_name' => 'file',
             'filters' => [
                 'mime_types' => [
-                    ['title' => 'Image files', 'extensions' => $attachment['imageAllowFiles']],
-                    ['title' => 'Files', 'extensions' => $attachment['fileAllowFiles']],
-                    ['title' => 'Video files', 'extensions' => $attachment['videoAllowFiles']],
+                    ['title' => 'Image files', 'extensions' => 'jpg,bmp,png'],
+                    //['title' => 'Video files', 'extensions' => $attachment['videoAllowFiles']],
+                    //['title' => 'Files', 'extensions' => $attachment['fileAllowFiles']],
                 ],
-                'max_file_size' => ($attachment['maxSize'] / 1024 / 1024) . 'mb',
+                'max_file_size' => $module->getMaxUploadSize() . 'mb',
                 'prevent_duplicates' => true
             ],
             'multi_selection' => false,
             'browse_button' => $this->toggleButton ['id'],
-            'url' => Url::toRoute('/system/upload/plupload'),
+            'url' => Url::toRoute('/attachment/upload/plupload'),
             'container' => $this->options ['id'],
             'runtimes' => 'gears,html5,flash,silverlight,browserplus',
             'flash_swf_url' => "{$bundle->baseUrl}/Moxie.swf",
             'silverlight_xap_url' => "{$bundle->baseUrl}/Moxie.xap",
-            'max_file_size' => ($attachment['maxSize'] / 1024 / 1024) . 'mb',
-            'chunk_size' => ($attachment['maxSize'] / 1024 / 1024) . 'mb',
+            'max_file_size' => $module->getMaxUploadSize() . 'mb',
+            'chunk_size' => $module->getMaxUploadSize() . 'mb',
             'error_container' => "#{$this->errorContainer}",
         ], $this->clientOptions);
         if ($this->progressOptions !== false) {
@@ -142,7 +143,6 @@ class Plupload extends InputWidget
             'Error' => new JsExpression("function(uploader,errObject){
             if(errObject.code == -200) {var response = JSON.parse(errObject.response);alert(response.message);} else {alert(errObject.message);}console.log(errObject);}"),
         ], $this->events);
-
     }
 
     public function run()
@@ -167,7 +167,7 @@ class Plupload extends InputWidget
     }
 
     /**
-     * Renders the toggle button.
+     * 渲染触发按钮
      *
      * @return string the rendering result
      */

@@ -24,7 +24,7 @@ class Module extends \yii\base\Module
     /**
      * @var string 附件访问路径
      */
-    public $uploadUrl = '@web/uploads';
+    public $uploads = '@web/uploads';
 
     /**
      * @var integer the permission to be set for newly created directories.
@@ -54,7 +54,7 @@ class Module extends \yii\base\Module
         if (!is_dir($this->uploadRoot)) {
             FileHelper::createDirectory($this->uploadRoot, $this->dirMode, true);
         }
-        $this->uploadUrl = Yii::getAlias($this->uploadUrl);
+        $this->uploads = Yii::getAlias($this->uploads);
     }
 
     /**
@@ -89,7 +89,7 @@ class Module extends \yii\base\Module
      */
     public function getFileUrl($filePath)
     {
-        return $this->uploadUrl . '/' . $filePath;
+        return $this->uploads . '/' . $filePath;
     }
 
     /**

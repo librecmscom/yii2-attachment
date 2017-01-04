@@ -40,11 +40,21 @@ class UploadController extends Controller
         ];
     }
 
-    public function actionUpload($module){
-
+    /**
+     * @inheritdoc
+     * @return array
+     */
+    public function actions()
+    {
+        return [
+            'plupload' => [
+                'class' => 'yii\attachment\actions\PluploadAction',
+            ],
+        ];
     }
 
-    public function actionPlupload($module){
+
+    public function actionUpload($module){
 
     }
 
