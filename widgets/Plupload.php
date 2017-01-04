@@ -14,7 +14,7 @@ use yii\web\JsExpression;
 use yii\widgets\InputWidget;
 use yii\helpers\ArrayHelper;
 use yii\bootstrap\BootstrapPluginAsset;
-use yuncms\attachment\assets\PluploadAsset;
+use xutl\plupload\PluploadAsset;
 
 /**
  * Wrapper for Plupload
