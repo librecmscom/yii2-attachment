@@ -6,8 +6,10 @@
  */
 namespace yuncms\attachment;
 
-use yuncms\attachment\FileInfoInterface;
-
+/**
+ * Class Exception
+ * @package yuncms\attachment
+ */
 class Exception extends \yii\base\Exception
 {
 
@@ -16,6 +18,6 @@ class Exception extends \yii\base\Exception
      */
     public function getName()
     {
-        return 'Exception';
+        return 'Attachment Exception';
     }
 }

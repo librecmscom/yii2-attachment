@@ -16,16 +16,15 @@ use yii\helpers\FileHelper;
  */
 class Module extends \yii\base\Module
 {
-
     /**
      * @var string 附件存储路径
      */
-    public $storagePath = '@storageRoot';
+    public $uploadRoot = '@uploadroot';
 
     /**
      * @var string 附件访问路径
      */
-    public $storage = '@storage';
+    public $uploadUrl = '@web/uploads';
 
     /**
      * @var integer the permission to be set for newly created directories.
@@ -41,19 +40,25 @@ class Module extends \yii\base\Module
     public $pathFormat = '{yyyy}/{mm}{dd}';
 
     /**
-     * @inheritdoc
+     * @var string 最大允许上传大小需小于系统限制才能生效
+     */
+    public $maxUploadSize = '2M';
+
+    /**
+     * 初始化附件存储路径
      */
     public function init()
     {
         parent::init();
-        $this->storagePath = Yii::getAlias($this->storagePath);
-        if (!is_dir($this->storagePath)) {
-            FileHelper::createDirectory($this->storagePath, $this->dirMode, true);
+        $this->uploadRoot = Yii::getAlias($this->uploadRoot);
+        if (!is_dir($this->uploadRoot)) {
+            FileHelper::createDirectory($this->uploadRoot, $this->dirMode, true);
         }
+        $this->uploadUrl = Yii::getAlias($this->uploadUrl);
     }
 
     /**
-     * 返回允许上传的最大大小
+     * 返回允许上传的最大大小单位 MB
      * @return int the max upload size in MB
      */
     public function getMaxUploadSize()
@@ -61,27 +66,7 @@ class Module extends \yii\base\Module
         $maxUpload = (int)(ini_get('upload_max_filesize'));
         $maxPost = (int)(ini_get('post_max_size'));
         $memoryLimit = (int)(ini_get('memory_limit'));
-        return min($maxUpload, $maxPost, $memoryLimit);
-    }
-
-    /**
-     * 保存文件
-     * @param string|UploadedFile $file
-     * @return bool
-     */
-    public function save($file)
-    {
-        $fileName = rand(1000, 1000000000);
-        if ($file instanceof UploadedFile) {
-            $filePath = $this->getFilePath() . $fileName . '.' . $file->extension;
-            return $file->saveAs($filePath);
-        } else if (file_exists($file)) {//如果不是上次的文件，那么直接移动该文件
-            $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-            $filePath = $this->getFilePath() . $fileName . '.' . $extension;
-            return rename($file, $filePath);
-        } else {
-            return false;
-        }
+        return min($maxUpload, $maxPost, $memoryLimit,$this->maxUploadSize);
     }
 
     /**
@@ -90,7 +75,7 @@ class Module extends \yii\base\Module
      */
     public function getFilePath()
     {
-        $filePath = Yii::getAlias($this->storagePath) . '/' . $this->getFileHome();
+        $filePath = $this->uploadRoot . '/' . $this->getFileHome();
         if (!is_dir($filePath)) {//递归创建保存目录
             FileHelper::createDirectory($filePath, $this->dirMode, true);
         }
@@ -104,12 +89,12 @@ class Module extends \yii\base\Module
      */
     public function getFileUrl($filePath)
     {
-        return Yii::getAlias($this->storage) . '/' . $filePath;
+        return $this->uploadUrl . '/' . $filePath;
     }
 
     /**
      * 生成文件存储路径
-     * @return mixed
+     * @return string
      */
     public function getFileHome()
     {
@@ -121,5 +106,25 @@ class Module extends \yii\base\Module
             $this->pathFormat
         );
         return $path;
+    }
+
+    /**
+     * 保存文件
+     * @param string|UploadedFile $file
+     * @return bool
+     */
+    public function save($file)
+    {
+        $fileName = rand(1000, 1000000000);
+        if ($file instanceof UploadedFile) {
+            $filePath = $this->getFilePath() . $fileName . '.' . $file->extension;
+            return $file->saveAs($filePath);
+        } else if ((is_string($file) && is_file($file)) && file_exists($file)) {
+            $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+            $filePath = $this->getFilePath() . $fileName . '.' . $extension;
+            return rename($file, $filePath);
+        } else {
+            return false;
+        }
     }
 }

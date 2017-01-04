@@ -4,11 +4,9 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
-namespace yuncms\attachment;
+namespace yuncms\attachment\backend;
 
-use yii\base\Object;
-
-class Attachment extends Object
+class Module extends \yuncms\attachment\Module
 {
 
 }
