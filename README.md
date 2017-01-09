@@ -20,8 +20,45 @@ or add
 
 to the require section of your `composer.json` file.
 
-##使用
-````
-不说
+##配置迁移
 
+````
+    'controllerMap' => [
+        'migrate' => [
+            'class' => 'yii\console\controllers\MigrateController',
+			//自动应答
+            'interactive' => 0,
+			//命名空间
+			'migrationNamespaces' => [
+                'yuncms\attachment\migrations',
+                //etc..
+            ],
+        ],
+    ],
+````
+
+````
+./yii migrate/up
+````
+
+##模块配置
+
+````
+#定义语言包配置
+'components' => [
+    'i18n' => [
+        'translations' => [
+            'attachment' => [
+                'class' => 'yii\i18n\PhpMessageSource',
+                'basePath' => '@yuncms/attachment/messages',
+            ],
+        ]
+    ]
+],
+'modules' => [
+    'attachment' => [
+        'class' => 'yuncms\attachment\Module',
+        //etc..
+    ],
+]
 ````

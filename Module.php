@@ -66,7 +66,17 @@ class Module extends \yii\base\Module
         $maxUpload = (int)(ini_get('upload_max_filesize'));
         $maxPost = (int)(ini_get('post_max_size'));
         $memoryLimit = (int)(ini_get('memory_limit'));
-        return min($maxUpload, $maxPost, $memoryLimit,$this->maxUploadSize);
+        $this->maxUploadSize = (int)$this->maxUploadSize;
+        return min($maxUpload, $maxPost, $memoryLimit, $this->maxUploadSize);
+    }
+
+    /**
+     * 返回允许上传的最大大小单位 Byte
+     * @return int the max upload size in Byte
+     */
+    public function getMaxUploadByte()
+    {
+        return $this->getMaxUploadSize() * 1024 * 1024;
     }
 
     /**

@@ -13,7 +13,8 @@ class FileUploadAsset extends AssetBundle
     public $sourcePath = '@vendor/yuncms/yii2-attachment/assets';
 
     public $css = [
-        'css/jquery.fileupload.css'
+        'css/jquery.fileupload.css',
+        'css/jquery.fileupload-ui.css'
     ];
 
     public $js = [
@@ -23,6 +24,6 @@ class FileUploadAsset extends AssetBundle
 
     public $depends = [
         'yii\web\JqueryAsset',
-        'yii\jui\JuiAsset',
+        'yii\jui\JuiAsset'
     ];
 }

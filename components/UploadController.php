@@ -10,6 +10,7 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yii\web\Response;
 
 /**
  * Class UploadController
@@ -24,7 +25,7 @@ class UploadController extends Controller
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
-                    'delete' => ['post'],
+                    'upload' => ['post'],
                 ],
             ],
             'access' => [
@@ -32,7 +33,7 @@ class UploadController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['upload', 'plupload', 'ueditor-upload', 'update', 'delete'],
+                        'actions' => ['upload', 'ueditor-upload', 'delete'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -54,11 +55,16 @@ class UploadController extends Controller
     }
 
 
-    public function actionUpload($module){
+    public function actionUpload()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
 
+
+        return ['url' => '/uploads/img.img'];
     }
 
-    public function actionUeditorUpload($module){
+    public function actionUeditorUpload($module)
+    {
 
     }
 }
