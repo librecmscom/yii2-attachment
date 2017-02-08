@@ -19,7 +19,7 @@ class Module extends \yii\base\Module
     /**
      * @var string 附件存储路径
      */
-    public $uploadRoot = '@uploadroot';
+    public $uploadRoot = '@root/uploads';
 
     /**
      * @var string 附件访问路径
