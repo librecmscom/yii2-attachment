@@ -33,7 +33,7 @@ class UploadController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['upload', 'ueditor', 'plupload'],
+                        'actions' => ['upload', 'ueditor'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -51,9 +51,6 @@ class UploadController extends Controller
             'ueditor' => [
                 'class' => 'yuncms\attachment\actions\UEditorAction',
             ],
-            'plupload' => [
-                'class' => 'yuncms\attachment\actions\PluploadAction',
-            ],
         ];
     }
 
@@ -64,10 +61,5 @@ class UploadController extends Controller
 
 
         return ['url' => '/uploads/img.img'];
-    }
-
-    public function actionUeditorUpload($module)
-    {
-
     }
 }
