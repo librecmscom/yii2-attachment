@@ -33,7 +33,7 @@ class UploadController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['upload', 'ueditor-upload', 'delete'],
+                        'actions' => ['upload', 'ueditor', 'plupload'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -48,8 +48,11 @@ class UploadController extends Controller
     public function actions()
     {
         return [
+            'ueditor' => [
+                'class' => 'yuncms\attachment\actions\UEditorAction',
+            ],
             'plupload' => [
-                'class' => 'yii\attachment\actions\PluploadAction',
+                'class' => 'yuncms\attachment\actions\PluploadAction',
             ],
         ];
     }
