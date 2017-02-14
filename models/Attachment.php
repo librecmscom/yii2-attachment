@@ -101,6 +101,15 @@ class Attachment extends ActiveRecord
         ];
     }
 
+    /**
+     * User Relation
+     * @return \yii\db\ActiveQueryInterface
+     */
+    public function getUser()
+    {
+        return $this->hasOne(Yii::$app->user->identityClass, ['id' => 'user_id']);
+    }
+
     public function getUrl()
     {
         return Yii::$app->getModule('attachment')->getUrl($this->path);
