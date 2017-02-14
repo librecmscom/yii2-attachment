@@ -52,10 +52,19 @@ class Attachment extends ActiveRecord
             [
                 'class' => 'yii\behaviors\AttributeBehavior',
                 'attributes' => [
-                    ActiveRecord::EVENT_AFTER_FIND => 'ip'
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'ip'
                 ],
                 'value' => function ($event) {
                     return Yii::$app->request->userIP;
+                }
+            ],
+            [
+                'class' => 'yii\behaviors\AttributeBehavior',
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => 'user_id'
+                ],
+                'value' => function ($event) {
+                    return Yii::$app->user->id;
                 }
             ],
         ];
@@ -71,8 +80,6 @@ class Attachment extends ActiveRecord
             'user_id' => Yii::t('attachment', 'User Id'),
             'filename' => Yii::t('attachment', 'Filename'),
             'original_name' => Yii::t('attachment', 'Original FileName'),
-            'model' => Yii::t('attachment', 'Model'),
-            'model_id' => Yii::t('attachment', 'Model Id'),
             'hash' => Yii::t('attachment', 'File Hash'),
             'size' => Yii::t('attachment', 'File Size'),
             'type' => Yii::t('attachment', 'File Type'),
@@ -90,7 +97,12 @@ class Attachment extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'original_name', 'model'], 'required'],
+            [['filename', 'original_name'], 'required'],
         ];
+    }
+
+    public function getUrl()
+    {
+        return $this->path;
     }
 }
