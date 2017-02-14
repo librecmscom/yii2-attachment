@@ -8,12 +8,13 @@ namespace yuncms\attachment\models;
 
 use Yii;
 use yii\db\ActiveRecord;
+use yii\db\BaseActiveRecord;
 
 /**
  * Class Attachment
  * @property int $id
  * @property int $user_id 上传用户uID
- * @property string $name 文件名
+ * @property string $filename 文件名
  * @property string $original_name 文件原始名称
  * @property string $model 上传模型
  * @property string $hash 文件哈希
@@ -34,5 +35,62 @@ class Attachment extends ActiveRecord
     public static function tableName()
     {
         return '{{%attachment}}';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => 'yii\behaviors\TimestampBehavior',
+                'attributes' => [
+                    BaseActiveRecord::EVENT_BEFORE_INSERT => ['created_at'],
+                ],
+            ],
+            [
+                'class' => 'yii\behaviors\AttributeBehavior',
+                'attributes' => [
+                    ActiveRecord::EVENT_AFTER_FIND => 'ip'
+                ],
+                'value' => function ($event) {
+                    return Yii::$app->request->userIP;
+                }
+            ],
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => Yii::t('attachment', 'ID'),
+            'user_id' => Yii::t('attachment', 'User Id'),
+            'filename' => Yii::t('attachment', 'Filename'),
+            'original_name' => Yii::t('attachment', 'Original FileName'),
+            'model' => Yii::t('attachment', 'Model'),
+            'model_id' => Yii::t('attachment', 'Model Id'),
+            'hash' => Yii::t('attachment', 'File Hash'),
+            'size' => Yii::t('attachment', 'File Size'),
+            'type' => Yii::t('attachment', 'File Type'),
+            'mine_type' => Yii::t('attachment', 'File mineType'),
+            'ext' => Yii::t('attachment', 'File Ext'),
+            'path' => Yii::t('attachment', 'Path'),
+            'ip' => Yii::t('attachment', 'User Ip'),
+            'created_at' => Yii::t('attachment', 'Created At'),
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return [
+            [['name', 'original_name', 'model'], 'required'],
+        ];
     }
 }
