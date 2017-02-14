@@ -94,7 +94,7 @@ class PluploadAction extends Action
                 $result['state'] = array_shift(array_shift($fileModel->getErrors()));
             }
         } else {
-            $result['state'] = Yii::t('system','File does not exist.');//文件不存在
+            $result['state'] = Yii::t('attachment','File does not exist.');//文件不存在
         }
         return $result;
     }

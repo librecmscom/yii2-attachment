@@ -16,9 +16,10 @@ class M170109093051Create_attachment_table extends Migration
         $this->createTable('{{%attachment}}', [
             'id' => $this->primaryKey(),
             'user_id' => $this->integer()->comment('用户ID'),
-            'name' => $this->string(255)->notNull()->comment('哈希值'),
+            'filename' => $this->string(255)->notNull()->comment('哈希值'),
             'original_name'=> $this->string(255)->notNull()->comment('文件原始名称'),
-            'model' => $this->string(255)->notNull()->comment('上传模型'),
+            'model' => $this->string(255)->comment('上传模型'),
+            'model_id' => $this->integer()->comment('上传模型ID'),
             'hash' => $this->string(32)->notNull()->comment('哈希值'),
             'size' => $this->integer()->defaultValue(0)->comment('字节数'),
             'type' => $this->string(255)->notNull()->comment('文件类型'),

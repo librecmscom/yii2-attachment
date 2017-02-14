@@ -17,6 +17,24 @@
  * NOTE: this file must be saved in UTF-8 encoding.
  */
 return [
+    'File Type' => '文件类型',
+    'File does not exist.' => '文件不存在',
+    'File mineType' => '文件类型',
+    'ID' => '',
+    'Model' => '模型',
+    'Model Id' => '模型ID',
+    'Batch Deletion' => '批量删除',
+    'Created At' => '上传时间',
+    'Delete Attachment' => '删除附件',
+    'File Ext' => '后缀',
+    'File Hash' => '哈希',
+    'File Size' => '文件大小',
+    'Filename' => '文件名',
+    'Manage Attachment' => '附件管理',
+    'Original FileName' => '原始名称',
+    'Path' => '路径',
     'Select Files' => '选择文件',
     'Select file' => '选择文件',
+    'User Id' => '上传用户',
+    'User Ip' => '上传IP',
 ];

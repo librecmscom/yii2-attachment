@@ -25,15 +25,6 @@ $this->params['breadcrumbs'][] = $this->title;
                         'url' => ['/attachment/index'],
                     ],
                     [
-                        'label' => Yii::t('attachment', 'Create Attachment'),
-                        'url' => ['/attachment/create'],
-                    ],
-                    [
-                        'label' => Yii::t('attachment', 'Update Attachment'),
-                        'url' => ['/attachment/update', 'id' => $model->id],
-                        'options' => ['class' => 'btn btn-primary btn-sm']
-                    ],
-                    [
                         'label' => Yii::t('attachment', 'Delete Attachment'),
                         'url' => ['/attachment/delete', 'id' => $model->id],
                         'options' => [
@@ -51,7 +42,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attributes' => [
                             'id',
                     'user_id',
-                    'name',
+                    'filename',
                     'original_name',
                     'model',
                     'hash',
