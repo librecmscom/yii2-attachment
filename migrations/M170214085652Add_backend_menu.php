@@ -10,7 +10,7 @@ class M170214085652Add_backend_menu extends Migration
     {
         $this->insert('{{%admin_menu}}', [
             'name' => '附件设置',
-            'parent' => 3,
+            'parent' => 2,
             'route' => '/attachment/attachment/setting',
             'icon' => 'fa-cog',
             'sort' => NULL,
@@ -29,7 +29,7 @@ class M170214085652Add_backend_menu extends Migration
 
     public function down()
     {
-        $id = (new \yii\db\Query())->select(['id'])->from('{{%admin_menu}}')->where(['name' => '附件设置', 'parent' => 3])->scalar($this->getDb());
+        $id = (new \yii\db\Query())->select(['id'])->from('{{%admin_menu}}')->where(['name' => '附件设置', 'parent' => 2])->scalar($this->getDb());
         $this->delete('{{%admin_menu}}', ['parent' => $id]);
         $this->delete('{{%admin_menu}}', ['id' => $id]);
 
