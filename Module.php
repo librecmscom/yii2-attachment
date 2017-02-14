@@ -109,7 +109,7 @@ class Module extends \yii\base\Module
      * 保存文件
      * @param string|UploadedFile $tempName 临时文件名或路径
      * @param string $uploadDir 存储路径
-     * @return bool
+     * @return bool|Attachment
      */
     public function save($tempName, $uploadDir = null)
     {
@@ -137,12 +137,12 @@ class Module extends \yii\base\Module
         $newFileName = $this->getFilename($extension);
         $saveFile = $savePath . $newFileName;
         $filePath = str_replace([$this->uploadRoot, DIRECTORY_SEPARATOR], ['', '/'], $saveFile);
-        if (copy($tempName, $saveFile)) {
+        if (copy($tempName, $saveFile) && unlink($tempName)) {
             $mineType = FileHelper::getMimeType($saveFile);
             list($type) = explode('/', $mineType);
             $hash = hash_file('md5', $saveFile);
             $at = new Attachment();
-            $at->filename=$newFileName;
+            $at->filename = $newFileName;
             $at->original_name = $originalName;
             $at->path = $filePath;
             $at->size = $size;
@@ -151,8 +151,8 @@ class Module extends \yii\base\Module
             $at->mine_type = $mineType;
             $at->hash = $hash;
             $at->save();
-            print_r($at);
-            //unlink($tempName);
+            return $at;
         }
+        return false;
     }
 }

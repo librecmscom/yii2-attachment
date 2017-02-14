@@ -103,6 +103,6 @@ class Attachment extends ActiveRecord
 
     public function getUrl()
     {
-        return $this->path;
+        return Yii::$app->getModule('attachment')->getUrl($this->path);
     }
 }
