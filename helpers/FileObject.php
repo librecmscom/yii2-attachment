@@ -29,7 +29,7 @@ class FileObject extends Object
     /**
      * @var string the original name of the file being
      */
-    public $name;
+    public $filename;
 
     /**
      * @var string the path of the file on the server.
@@ -57,7 +57,7 @@ class FileObject extends Object
 
     public static function getInstances($path, $name = null)
     {
-        return new static(['tempName' => $path, 'name' => $name]);
+        return new static(['tempName' => $path, 'filename' => $name]);
     }
 
     /**
@@ -71,8 +71,8 @@ class FileObject extends Object
         } elseif (!file_exists($this->tempName)) {
             throw new InvalidConfigException (Yii::t('attachment', 'File does not exist.'));
         }
-        if (empty ($this->name)) {
-            $this->name = pathinfo($this->tempName, PATHINFO_BASENAME);
+        if (empty ($this->filename)) {
+            $this->filename = pathinfo($this->tempName, PATHINFO_BASENAME);
         }
         if (empty ($this->hash)) {
             $this->hash = hash_file('md5', $this->tempName);
@@ -96,7 +96,7 @@ class FileObject extends Object
      */
     public function __toString()
     {
-        return $this->name;
+        return $this->filename;
     }
 
     /**

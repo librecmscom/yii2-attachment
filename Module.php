@@ -42,9 +42,9 @@ class Module extends \yii\base\Module
     public $dirMode = 0775;
 
     /**
-     * @var string 最大允许上传大小需小于系统限制才能生效
+     * @var string 图片上传最大大小
      */
-    public $maxUploadSize = '2M';
+    public $imageMaxSize = '2M';
 
     /**
      * @var array 允许上传的图片文件
@@ -52,9 +52,19 @@ class Module extends \yii\base\Module
     public $imageAllowFiles = 'png,jpg,jpeg,gif,bmp';
 
     /**
+     * @var string 视频上传最大大小
+     */
+    public $videoMaxSize = '100M';
+
+    /**
      * @var array 允许的视频后缀
      */
     public $videoAllowFiles = 'flv,swf,mkv,avi,rm,rmvb,mpeg,mpg,ogg,ogv,mov,wmv,mp4,webm,mp3,wav,mid';
+
+    /**
+     * @var string 文件上传最大大小
+     */
+    public $fileMaxSize = '100M';
 
     /**
      * @var array 允许的文件后缀
@@ -87,8 +97,7 @@ class Module extends \yii\base\Module
         $maxUpload = (int)(ini_get('upload_max_filesize'));
         $maxPost = (int)(ini_get('post_max_size'));
         $memoryLimit = (int)(ini_get('memory_limit'));
-        $this->maxUploadSize = (int)$this->maxUploadSize;
-        return min($maxUpload, $maxPost, $memoryLimit, $this->maxUploadSize);
+        return min($maxUpload, $maxPost, $memoryLimit);
     }
 
     /**

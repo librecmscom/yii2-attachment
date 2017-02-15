@@ -29,6 +29,12 @@ use yii\db\BaseActiveRecord;
  */
 class Attachment extends ActiveRecord
 {
+    const TYPE_IMAGE = 'image';
+
+    const TYPE_VIDEO = 'video';
+
+    const TYPE_FILE = 'file';
+
     /**
      * 定义数据表
      */
@@ -98,6 +104,8 @@ class Attachment extends ActiveRecord
     {
         return [
             [['filename', 'original_name'], 'required'],
+            ['type', 'default', 'value' => self::TYPE_FILE],
+            ['type', 'in', 'range' => [self::TYPE_IMAGE, self::TYPE_VIDEO, self::TYPE_FILE]],
         ];
     }
 

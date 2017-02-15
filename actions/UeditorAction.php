@@ -8,6 +8,7 @@ namespace yuncms\attachment\actions;
 
 use Yii;
 use yii\base\Action;
+use yii\validators\FileValidator;
 use yii\web\Response;
 use yii\web\HttpException;
 use yii\web\UploadedFile;
@@ -26,15 +27,40 @@ class UEditorAction extends Action
     use ModuleTrait;
 
     /**
-     * @var array 配置参数
+     * @var array 客户端配置参数
      */
-    public $options = [
+    public $options = [];
+    /**
+     * @var array 允许上传的图片文件后缀
+     */
+    public $imageAllowFiles;
 
-    ];
+    /**
+     * @var array 允许上传的视频文件后缀
+     */
+    public $videoAllowFiles;
 
-    public $ueditorImageAllowFiles;
-    public $ueditorVideoAllowFiles;
-    public $ueditorFileAllowFiles;
+    /**
+     * @var array 允许上传的普通文件后缀
+     */
+    public $fileAllowFiles;
+
+    /**
+     * @var string 图片上传最大大小
+     */
+    public $imageMaxSize = '2M';
+
+    /**
+     * @var string 视频上传最大大小
+     */
+    public $videoMaxSize = '100M';
+
+    /**
+     * @var string 文件上传最大大小
+     */
+    public $fileMaxSize = '100M';
+
+    private $maxUploadSize;
 
     /**
      * Initializes the action and ensures the temp path exists.
@@ -42,132 +68,80 @@ class UEditorAction extends Action
     public function init()
     {
         parent::init();
+        //关闭CSRF
         $this->controller->enableCsrfValidation = false;
-        //预处理
-        $this->ueditorImageAllowFiles = $this->normalizeExtension(explode(',', $this->getModule()->imageAllowFiles));
-        $this->ueditorVideoAllowFiles = $this->normalizeExtension(explode(',', $this->getModule()->videoAllowFiles));
-        $this->ueditorFileAllowFiles = $this->normalizeExtension(explode(',', $this->getModule()->fileAllowFiles));//转数组
+        //将系统默认的后缀限制,转换成ue专用的
+        $this->imageAllowFiles = $this->normalizeExtension($this->getModule()->imageAllowFiles);
+        $this->videoAllowFiles = $this->normalizeExtension($this->getModule()->videoAllowFiles);
+        $this->fileAllowFiles = $this->normalizeExtension($this->getModule()->fileAllowFiles);
+        //获取系统上传限制
+        $this->maxUploadSize = $this->getModule()->getMaxUploadSize();
+
         $this->options = ArrayHelper::merge([
-            /* 上传图片配置项 */
-            /* 执行上传图片的action名称 */
-            "imageActionName" => "uploadimage",
-            /* 提交的图片表单名称 */
+            "imageActionName" => "upload-image",
             "imageFieldName" => "upfile",
             /* 上传大小限制，单位B */
-            "imageMaxSize" => $this->getModule()->getMaxUploadByte(),
+            "imageMaxSize" => $this->getMaxUploadByte($this->getModule()->imageMaxSize),
             /* 上传图片格式显示 */
-            "imageAllowFiles" => $this->ueditorImageAllowFiles,
-            /* 是否压缩图片,默认是true */
+            "imageAllowFiles" => $this->imageAllowFiles,
             "imageCompressEnable" => true,
-            /* 图片压缩最长边限制 */
             "imageCompressBorder" => 1600,
-            /* 插入的图片浮动方式 */
             "imageInsertAlign" => "none",
-            /* 图片访问路径前缀 */
             "imageUrlPrefix" => "",
-            /* 上传保存路径,可以自定义保存路径和文件名格式 */
-            /* {filename} 会替换成原文件名,配置这项需要注意中文乱码问题 */
-            /* {rand:6} 会替换成随机数,后面的数字是随机数的位数 */
-            /* {time} 会替换成时间戳 */
-            /* {yyyy} 会替换成四位年份 */
-            /* {yy} 会替换成两位年份 */
-            /* {mm} 会替换成两位月份 */
-            /* {dd} 会替换成两位日期 */
-            /* {hh} 会替换成两位小时 */
-            /* {ii} 会替换成两位分钟 */
-            /* {ss} 会替换成两位秒 */
-            /* 非法字符 \ => * ? " < > | */
-            /* 具请体看线上文档=> fex.baidu.com/ueditor/#use-format_upload_filename */
-            //"imagePathFormat" => "/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}",
-
             /* 涂鸦图片上传配置项 */
-            /* 执行上传涂鸦的action名称 */
-            "scrawlActionName" => "uploadscrawl",
-            /* 提交的图片表单名称 */
+            "scrawlActionName" => "upload-scrawl",
             "scrawlFieldName" => "upfile",
-            /* 上传保存路径,可以自定义保存路径和文件名格式 */
-            // "scrawlPathFormat" => "/ueditor/php/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}",
             /* 上传大小限制，单位B */
-            "scrawlMaxSize" => $this->getModule()->getMaxUploadByte(),
+            "scrawlMaxSize" => $this->getMaxUploadByte($this->getModule()->imageMaxSize),
             /* 图片访问路径前缀 */
             "scrawlUrlPrefix" => "",
-
             "scrawlInsertAlign" => "none",
             /* 截图工具上传 */
             /* 执行上传截图的action名称 */
-            "snapscreenActionName" => "uploadimage",
+            "snapscreenActionName" => "upload-image",
             /* 上传保存路径,可以自定义保存路径和文件名格式 */
-            // "snapscreenPathFormat" => "/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}",
-            /* 图片访问路径前缀 */
             "snapscreenUrlPrefix" => "",
-            /* 插入的图片浮动方式 */
             "snapscreenInsertAlign" => "none",
-
             /* 抓取远程图片配置 */
             "catcherLocalDomain" => ["127.0.0.1", "localhost"],
-            /* 执行抓取远程图片的action名称 */
-            "catcherActionName" => "catchimage",
-            /* 提交的图片列表表单名称 */
+            "catcherActionName" => "catch-image",
             "catcherFieldName" => "source",
-            /* 上传保存路径,可以自定义保存路径和文件名格式 */
-            //"catcherPathFormat" => "/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}",
-            /* 图片访问路径前缀 */
             "catcherUrlPrefix" => "",
             /* 上传大小限制，单位B */
-            "catcherMaxSize" => $this->getModule()->getMaxUploadByte(),
+            "catcherMaxSize" => $this->getMaxUploadByte($this->getModule()->imageMaxSize),
             /* 抓取图片格式显示 */
-            "catcherAllowFiles" => $this->ueditorImageAllowFiles,
+            "catcherAllowFiles" => $this->imageAllowFiles,
 
             /* 上传视频配置 */
-            /* 执行上传视频的action名称 */
-            "videoActionName" => "uploadvideo",
-            /* 提交的视频表单名称 */
+            "videoActionName" => "upload-video",
             "videoFieldName" => "upfile",
-            /* 上传保存路径,可以自定义保存路径和文件名格式 */
-            //"videoPathFormat" => "/upload/video/{yyyy}{mm}{dd}/{time}{rand:6}",
-
             "videoUrlPrefix" => "",
             /* 视频访问路径前缀 */
-            "videoMaxSize" => $this->getModule()->getMaxUploadByte(),
+            "videoMaxSize" => $this->getMaxUploadByte($this->getModule()->videoMaxSize),
             /* 上传大小限制，单位B，默认100MB */
-            "videoAllowFiles" => $this->ueditorVideoAllowFiles,
-            /* 上传视频格式显示 */
+            "videoAllowFiles" => $this->videoAllowFiles,
+
             /* 上传文件配置 */
-            "fileActionName" => "uploadfile",
-            /* controller里,执行上传视频的action名称 */
+            "fileActionName" => "upload-file",
             "fileFieldName" => "upfile",
-            /* 提交的文件表单名称 */
-            //"filePathFormat" => "/upload/file/{yyyy}{mm}{dd}/{time}{rand:6}",
-            /* 上传保存路径,可以自定义保存路径和文件名格式 */
             "fileUrlPrefix" => "",
-            /* 文件访问路径前缀 */
-            "fileMaxSize" => $this->getModule()->getMaxUploadByte(),
+            "fileMaxSize" => $this->getMaxUploadByte($this->getModule()->fileMaxSize),
             /* 上传大小限制，单位B，默认50MB */
-            "fileAllowFiles" => $this->ueditorFileAllowFiles,
+            "fileAllowFiles" => $this->fileAllowFiles,
             /* 上传文件格式显示 */
-            /* 列出指定目录下的图片 */
-            "imageManagerActionName" => "listimage",
+            "imageManagerActionName" => "list-image",
             /* 执行图片管理的action名称 */
-            "imageManagerListPath" => "/ueditor/php/upload/image/",
-            /* 指定要列出图片的目录 */
+            "imageManagerListPath" => "",
             "imageManagerListSize" => 20,
-            /* 每次列出文件数量 */
             "imageManagerUrlPrefix" => "",
-            /* 图片访问路径前缀 */
             "imageManagerInsertAlign" => "none",
-            /* 插入的图片浮动方式 */
-            "imageManagerAllowFiles" => $this->ueditorImageAllowFiles,
+            "imageManagerAllowFiles" => $this->imageAllowFiles,
             /* 列出的文件类型 */
-            /* 列出指定目录下的文件 */
-            "fileManagerActionName" => "listfile",
-            /* 执行文件管理的action名称 */
-            "fileManagerListPath" => "/ueditor/php/upload/file/",
-            /* 指定要列出文件的目录 */
+            "fileManagerActionName" => "list-file",
+            "fileManagerListPath" => "",
             "fileManagerUrlPrefix" => "",
-            /* 文件访问路径前缀 */
             "fileManagerListSize" => 20,
-            /* 每次列出文件数量 */
-            "fileManagerAllowFiles" => $this->ueditorFileAllowFiles
+            "fileManagerAllowFiles" => $this->fileAllowFiles
             /* 列出的文件类型 */
         ], $this->options);
     }
@@ -183,16 +157,13 @@ class UEditorAction extends Action
     {
         if ($action == 'config') {
             $result = $this->options;
-        } else if (in_array($action, ['uploadfile', 'uploadimage'])) {
-            $uploader = new Uploader();
-            $uploader->upFile($this->options['imageFieldName']);
-            exit;
+        } else if (in_array($action, ['upload-file', 'upload-image'])) {
             $result = $this->upload($action);
-        } else if (in_array($action, ['listimage', 'listfile'])) {
+        } else if (in_array($action, ['list-image', 'list-file'])) {
             $result = $this->lists($action);
-        } else if ($action == 'catchimage') {
+        } else if ($action == 'catch-image') {
             $result = $this->uploadCrawler();
-        } else if ($action == 'uploadscrawl') {//涂鸦上传
+        } else if ($action == 'upload-scrawl') {//涂鸦上传
             $result = $this->uploadScrawl();
         } else {
             $result = ['state' => 'Request address error'];
@@ -214,7 +185,7 @@ class UEditorAction extends Action
     protected function upload($action)
     {
         switch ($action) {
-            case 'uploadimage':
+            case 'upload-image':
                 $fieldName = $this->options['imageFieldName'];
                 $fileType = Attachment::TYPE_IMAGE;
                 $config = [
@@ -224,7 +195,7 @@ class UEditorAction extends Action
                     "maxSize" => $this->options['imageMaxSize'],
                 ];
                 break;
-            case 'uploadvideo':
+            case 'upload-video':
                 $fieldName = $this->options['videoFieldName'];
                 $fileType = Attachment::TYPE_VIDEO;
                 $config = [
@@ -246,7 +217,7 @@ class UEditorAction extends Action
                 break;
         }
         $file = UploadedFile::getInstanceByName($fieldName);
-        $validator = new UploadValidator($config);
+        $validator = new FileValidator($config);
         if ($validator->validate($file, $error)) {
             $file = FileObject::getInstances($file->tempName, $file->name);
             $file->type = $fileType;
@@ -351,11 +322,12 @@ class UEditorAction extends Action
     /**
      * 格式化后缀
      *
-     * @param array $extensions 后缀数组
+     * @param string $extensions 后缀数组
      * @return mixed
      */
     private function normalizeExtension($extensions)
     {
+        $extensions = explode(',', $extensions);
         array_walk($extensions, function (&$value) {
             $value = '.' . $value;
         });
@@ -455,4 +427,14 @@ class UEditorAction extends Action
         return $result;
     }
 
+    /**
+     * 返回允许上传的最大大小单位 Byte
+     * @param string $maxSize 最大上传大小MB
+     * @return int the max upload size in Byte
+     */
+    public function getMaxUploadByte($maxSize)
+    {
+        $maxSize = (int)$maxSize;
+        return min($this->maxUploadSize,$maxSize) * 1024 * 1024;
+    }
 }
