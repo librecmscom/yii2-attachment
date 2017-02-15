@@ -28,6 +28,12 @@ class Module extends \yii\base\Module
     public $uploads = '@web/uploads';
 
     /**
+     * @var string the directory to store temporary files during conversion. You may use path alias here.
+     * If not set, it will use the "plupload" subdirectory under the application runtime path.
+     */
+    public $tempPath = '@runtime/attach';
+
+    /**
      * @var integer the permission to be set for newly created directories.
      * This value will be used by PHP chmod() function. No umask will be applied.
      * Defaults to 0775, meaning the directory is read-writable by owner and group,
@@ -41,6 +47,21 @@ class Module extends \yii\base\Module
     public $maxUploadSize = '2M';
 
     /**
+     * @var array 允许上传的图片文件
+     */
+    public $imageAllowFiles = 'png,jpg,jpeg,gif,bmp';
+
+    /**
+     * @var array 允许的视频后缀
+     */
+    public $videoAllowFiles = 'flv,swf,mkv,avi,rm,rmvb,mpeg,mpg,ogg,ogv,mov,wmv,mp4,webm,mp3,wav,mid';
+
+    /**
+     * @var array 允许的文件后缀
+     */
+    public $fileAllowFiles = 'rar,zip,tar,gz,7z,bz2,cab,iso,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,md,xml,xmind';
+
+    /**
      * 初始化附件存储路径
      */
     public function init()
@@ -49,6 +70,10 @@ class Module extends \yii\base\Module
         $this->uploadRoot = Yii::getAlias($this->uploadRoot);
         if (!is_dir($this->uploadRoot)) {
             FileHelper::createDirectory($this->uploadRoot, $this->dirMode, true);
+        }
+        $this->tempPath = Yii::getAlias($this->tempPath);
+        if (!is_dir($this->tempPath)) {
+            FileHelper::createDirectory($this->tempPath, $this->dirMode, true);
         }
         $this->uploads = Yii::getAlias($this->uploads);
     }
