@@ -44,7 +44,6 @@ class UEditorAction extends Action
         parent::init();
         $this->controller->enableCsrfValidation = false;
         //预处理
-
         $this->ueditorImageAllowFiles = $this->normalizeExtension(explode(',', $this->getModule()->imageAllowFiles));
         $this->ueditorVideoAllowFiles = $this->normalizeExtension(explode(',', $this->getModule()->videoAllowFiles));
         $this->ueditorFileAllowFiles = $this->normalizeExtension(explode(',', $this->getModule()->fileAllowFiles));//转数组
