@@ -26,6 +26,7 @@ return [
     'File does not exist.' => '文件不存在',
     'File mineType' => '文件类型',
     'ID' => '',
+    'An error occurred while saving the file.'=>'文件保存时出错',
     'Model' => '模型',
     'Model Id' => '模型ID',
     'Batch Deletion' => '批量删除',

@@ -187,7 +187,6 @@ class UEditorAction extends Action
         switch ($action) {
             case 'upload-image':
                 $fieldName = $this->options['imageFieldName'];
-                $fileType = Attachment::TYPE_IMAGE;
                 $config = [
                     'maxFiles' => 1,
                     'extensions' => $this->getModule()->imageAllowFiles,
@@ -197,7 +196,6 @@ class UEditorAction extends Action
                 break;
             case 'upload-video':
                 $fieldName = $this->options['videoFieldName'];
-                $fileType = Attachment::TYPE_VIDEO;
                 $config = [
                     'maxFiles' => 1,
                     'extensions' => $this->getModule()->videoAllowFiles,
@@ -207,7 +205,6 @@ class UEditorAction extends Action
                 break;
             default:
                 $fieldName = $this->options['fileFieldName'];
-                $fileType = Attachment::TYPE_FILE;
                 $config = [
                     'maxFiles' => 1,
                     'extensions' => $this->getModule()->fileAllowFiles,
@@ -216,18 +213,12 @@ class UEditorAction extends Action
                 ];
                 break;
         }
-        $file = UploadedFile::getInstanceByName($fieldName);
-        $validator = new FileValidator($config);
-        if ($validator->validate($file, $error)) {
-            $file = FileObject::getInstances($file->tempName, $file->name);
-            $file->type = $fileType;
-            return $this->saveFile($file);
-        } else {
-            $result = [
-                'state' => $error,
-            ];
-        }
-        return $result;
+        $uploader = new Uploader([
+            'fileField' => $fieldName,
+            'config' => $config,
+        ]);
+        $uploader->upFile();
+        return $uploader->getFileInfo();
     }
 
     /**
@@ -236,29 +227,21 @@ class UEditorAction extends Action
      */
     protected function uploadScrawl()
     {
-        $base64Data = Yii::$app->request->post($this->options['scrawlFieldName']);
-        $img = base64_decode($base64Data);
-        $size = strlen($img);
-        $tempName = $this->getModule()->tempPath . DIRECTORY_SEPARATOR . $size . '.png';
-        if (file_put_contents($tempName, $img)) {
-            $file = FileObject::getInstances($tempName, 'scrawl.png');
-            $validator = new FileValidator([
-                'extensions' => $this->getModule()->imageAllowFiles,
-                'checkExtensionByMimeType' => false,
-                "maxSize" => $this->options['scrawlMaxSize'],
-            ]);
-            if ($validator->validate($file, $error)) {
-                $file->type = Attachment::TYPE_IMAGE;
-                return $this->saveFile($file);
-            } else {
-                return [
-                    'state' => $error,
-                ];
-            }
-        }
-        return [
-            'state' => Yii::t('attachment', 'File write failed.'),
+        /* 上传配置 */
+        $config = [
+            'maxFiles' => 1,
+            'extensions' => $this->getModule()->imageAllowFiles,
+            'checkExtensionByMimeType' => false,
+            "maxSize" => $this->options['imageMaxSize'],
+            "oriName" => "scrawl.png"
         ];
+
+        $uploader = new Uploader([
+            'fileField' => $this->options['scrawlFieldName'],
+            'config' => $config,
+        ]);
+        $uploader->upBase64();
+        return $uploader->getFileInfo();
     }
 
     /**
@@ -266,6 +249,22 @@ class UEditorAction extends Action
      */
     protected function uploadCrawler()
     {
+        /* 上传配置 */
+        $config = [
+            'maxFiles' => 1,
+            'extensions' => $this->getModule()->imageAllowFiles,
+            'checkExtensionByMimeType' => false,
+            "maxSize" => $this->options['imageMaxSize'],
+            "oriName" => "remote.png"
+        ];
+
+        $uploader = new Uploader([
+            'fileField' => $this->options['catcherFieldName'],
+            'config' => $config,
+        ]);
+        $uploader->upBase64();
+        return $uploader->getFileInfo();
+
         $sources = Yii::$app->request->post($this->options['catcherFieldName']);
         if (is_array($sources)) {
             $lists = [];
@@ -422,7 +421,7 @@ class UEditorAction extends Action
                 $result['state'] = array_shift(array_shift($fileModel->getErrors()));
             }
         } else {
-            $result['state'] = Yii::t('attachment','File does not exist.');//文件不存在
+            $result['state'] = Yii::t('attachment', 'File does not exist.');//文件不存在
         }
         return $result;
     }
@@ -435,6 +434,6 @@ class UEditorAction extends Action
     public function getMaxUploadByte($maxSize)
     {
         $maxSize = (int)$maxSize;
-        return min($this->maxUploadSize,$maxSize) * 1024 * 1024;
+        return min($this->maxUploadSize, $maxSize) * 1024 * 1024;
     }
 }

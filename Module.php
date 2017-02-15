@@ -173,17 +173,16 @@ class Module extends \yii\base\Module
         $filePath = str_replace([$this->uploadRoot, DIRECTORY_SEPARATOR], ['', '/'], $saveFile);
         if (copy($tempName, $saveFile) && unlink($tempName)) {
             $mineType = FileHelper::getMimeType($saveFile);
-            list($type) = explode('/', $mineType);
             $hash = hash_file('md5', $saveFile);
-            $at = new Attachment();
-            $at->filename = $newFileName;
-            $at->original_name = $originalName;
-            $at->path = $filePath;
-            $at->size = $size;
-            $at->ext = $extension;
-            $at->type = $type;
-            $at->mine_type = $mineType;
-            $at->hash = $hash;
+            $at = new Attachment([
+                'filename' => $newFileName,
+                'original_name' => $originalName,
+                'path' => $filePath,
+                'size' => $size,
+                'ext' => $extension,
+                'mine_type' => $mineType,
+                'hash' => $hash,
+            ]);
             $at->save();
             return $at;
         }

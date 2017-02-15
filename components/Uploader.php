@@ -8,21 +8,55 @@ namespace yuncms\attachment\components;
 
 use Yii;
 use yii\base\Object;
+use yii\web\UploadedFile;
+use yii\helpers\FileHelper;
+use yii\validators\FileValidator;
+use yii\httpclient\Client;
 
+/**
+ * Class Uploader
+ * @package yuncms\attachment\components
+ */
 class Uploader extends Object
 {
 
+    /**
+     * @var string 文件上传字段
+     */
+    public $fileField;
 
-    private $file; //文件上传对象
+    /**
+     * @var array 配置数组
+     */
+    public $config;
+
+
     private $base64; //文件上传对象
-    private $config; //配置信息
 
+    /**
+     * @var string 原始文件名
+     */
+    private $oriName;
 
-    private $fileName; //新文件名
-    private $fullName; //完整文件名,即从当前配置目录开始的URL
-    private $filePath; //完整文件名,即从当前配置目录开始的URL
+    /**
+     * @var string 文件大小
+     */
+    private $fileSize;
 
+    /**
+     * @var string 新文件名
+     */
+    private $fileName;
 
+    /**
+     * @var string 相对路径的文件名
+     */
+    private $fullName;
+
+    /**
+     * @var string 绝对路径文件名
+     */
+    private $filePath;
 
     private $fileType; //文件类型
     private $stateInfo; //上传状态信息,
@@ -46,126 +80,78 @@ class Uploader extends Object
     ];
 
     /**
-     * @var string 原始文件名
-     */
-    private $oriName;
-
-    /**
-     * @var string 文件大小
-     */
-    private $fileSize;
-
-    /**
      * 上传文件的主处理方法
-     * @param string $fileField
      * @return mixed
      */
-    public function upFile($fileField)
+    public function upFile()
     {
-        $file = $_FILES[$fileField];
-        if (!$file) {
-            $this->stateInfo = Yii::t('attachment', 'File not found.');
-            return;
+        $file = UploadedFile::getInstanceByName($this->fileField);
+        $validator = new FileValidator($this->config);
+        if ($validator->validate($file, $error)) {
+            //设置文件名称
+            $this->oriName = $file->name;
+            //设置文件大小
+            $this->fileSize = $file->size;
+            $this->fileType = $this->getExtension();
+            $this->fullName = $this->getFullName();
+            $this->filePath = $this->getFilePath();
+            $this->fileName = $this->getFileName();
+            $dirName = dirname($this->filePath);
+            if (!is_dir($dirName)) {//递归创建保存目录
+                FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+            }
+            if (!($file->saveAs($this->filePath) && file_exists($this->filePath))) {
+                $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
+            } else { //移动成功
+                $this->stateInfo = 'SUCCESS';
+            }
         }
-        if ($file['error']) {
-            $this->stateInfo = $this->getStateInfo($file['error']);
-            return;
-        } else if (!file_exists($file['tmp_name'])) {
-            $this->stateInfo = Yii::t('attachment', 'Temp file not found.');
-            return;
-        } else if (!is_uploaded_file($file['tmp_name'])) {
-            $this->stateInfo = Yii::t('attachment', 'Temp file error.');
-            return;
-        }
-
-        //设置文件名称
-        $this->oriName = $file['name'];
-        //设置文件大小
-        $this->fileSize = $file['size'];
-        $this->fileType = $this->getExtension();
-        $this->fullName = $this->getFullName();
-        $this->filePath = $this->getFilePath();
-        $this->fileName = $this->getFileName();
-        $dirname = dirname($this->filePath);
-
-        //检查文件大小是否超出限制
-        if (!$this->checkSize()) {
-            $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
-            return;
-        }
-
-        //检查是否不允许的文件格式
-        if (!$this->checkType()) {
-            $this->stateInfo = Yii::t('attachment', 'The file type is not allowed.');
-            return;
-        }
-
-        //创建目录失败
-        if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
-            $this->stateInfo = $this->getStateInfo("ERROR_CREATE_DIR");
-            return;
-        } else if (!is_writeable($dirname)) {
-            $this->stateInfo = $this->getStateInfo("ERROR_DIR_NOT_WRITEABLE");
-            return;
-        }
-
-        //移动文件
-        if (!(move_uploaded_file($file["tmp_name"], $this->filePath) && file_exists($this->filePath))) { //移动失败
-            $this->stateInfo = $this->getStateInfo("ERROR_FILE_MOVE");
-        } else { //移动成功
-            $this->stateInfo = $this->stateMap[0];
-        }
+        return;
     }
 
     /**
      * 处理base64编码的图片上传
      * @return mixed
      */
-    private function upBase64($fileField)
+    public function upBase64()
     {
-        $base64Data = $_POST[$fileField];
+        $base64Data = Yii::$app->request->post($this->fileField);
         $img = base64_decode($base64Data);
-
         $this->oriName = $this->config['oriName'];
         $this->fileSize = strlen($img);
         $this->fileType = $this->getExtension();
         $this->fullName = $this->getFullName();
         $this->filePath = $this->getFilePath();
         $this->fileName = $this->getFileName();
-        $dirname = dirname($this->filePath);
+        $dirName = dirname($this->filePath);
 
+        if (!is_dir($dirName)) {//递归创建保存目录
+            FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+        }
         //检查文件大小是否超出限制
         if (!$this->checkSize()) {
             $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
             return;
         }
 
-        //创建目录失败
-        if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
-            $this->stateInfo = $this->getStateInfo("ERROR_CREATE_DIR");
-            return;
-        } else if (!is_writeable($dirname)) {
-            $this->stateInfo = $this->getStateInfo("ERROR_DIR_NOT_WRITEABLE");
-            return;
-        }
-
         //移动文件
         if (!(file_put_contents($this->filePath, $img) && file_exists($this->filePath))) { //移动失败
-            $this->stateInfo = $this->getStateInfo("ERROR_WRITE_CONTENT");
+            $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
         } else { //移动成功
-            $this->stateInfo = $this->stateMap[0];
+            $this->stateInfo = 'SUCCESS';
         }
-
     }
 
     /**
      * 拉取远程图片
      * @return mixed
      */
-    private function saveRemote()
+    public function saveRemote()
     {
         $imgUrl = htmlspecialchars($this->fileField);
         $imgUrl = str_replace("&amp;", "&", $imgUrl);
+
+
 
         //http开头验证
         if (strpos($imgUrl, "http") !== 0) {
@@ -260,68 +246,6 @@ class Uploader extends Object
         return !$this->stateMap[$errCode] ? $this->stateMap["ERROR_UNKNOWN"] : $this->stateMap[$errCode];
     }
 
-
-    /**
-     * 重命名文件
-     * @return string
-     */
-    private function getFullName()
-    {
-        //替换日期事件
-        $t = time();
-        $d = explode('-', date("Y-y-m-d-H-i-s"));
-        $format = $this->config["pathFormat"];
-        $format = str_replace("{yyyy}", $d[0], $format);
-        $format = str_replace("{yy}", $d[1], $format);
-        $format = str_replace("{mm}", $d[2], $format);
-        $format = str_replace("{dd}", $d[3], $format);
-        $format = str_replace("{hh}", $d[4], $format);
-        $format = str_replace("{ii}", $d[5], $format);
-        $format = str_replace("{ss}", $d[6], $format);
-        $format = str_replace("{time}", $t, $format);
-
-        //过滤文件名的非法自负,并替换文件名
-        $oriName = substr($this->oriName, 0, strrpos($this->oriName, '.'));
-        $oriName = preg_replace("/[\|\?\"\<\>\/\*\\\\]+/", '', $oriName);
-        $format = str_replace("{filename}", $oriName, $format);
-
-        //替换随机字符串
-        $randNum = rand(1, 10000000000) . rand(1, 10000000000);
-        if (preg_match("/\{rand\:([\d]*)\}/i", $format, $matches)) {
-            $format = preg_replace("/\{rand\:[\d]*\}/i", substr($randNum, 0, $matches[1]), $format);
-        }
-
-        $ext = $this->getExtension();
-        return $format . '.' . $ext;
-    }
-
-    /**
-     * 获取文件名
-     * @return string
-     */
-    private function getFileName()
-    {
-        return substr($this->filePath, strrpos($this->filePath, '/') + 1);
-    }
-
-    /**
-     * 获取文件完整路径
-     * @return string
-     */
-    private function getFilePath()
-    {
-        $fullname = $this->fullName;
-        $rootPath = $_SERVER['DOCUMENT_ROOT'];
-
-        if (substr($fullname, 0, 1) != '/') {
-            $fullname = '/' . $fullname;
-        }
-
-        return $rootPath . $fullname;
-    }
-
-
-
     /**
      * 文件大小检测
      * @return bool
@@ -337,9 +261,10 @@ class Uploader extends Object
      */
     public function getFileInfo()
     {
+        $fullName = $this->getModule()->uploads . '/' . str_replace('\\', '/', $this->fullName);
         return [
             "state" => $this->stateInfo,
-            "url" => $this->fullName,
+            "url" => $fullName,
             "title" => $this->fileName,
             "original" => $this->oriName,
             "type" => $this->fileType,
@@ -363,5 +288,47 @@ class Uploader extends Object
     private function getExtension()
     {
         return strtolower(pathinfo($this->oriName, PATHINFO_EXTENSION));
+    }
+
+    /**
+     * 重命名文件
+     * @return string
+     */
+    private function getFullName()
+    {
+        $extension = $this->getExtension();
+        return date('Y') . DIRECTORY_SEPARATOR . date('md') . DIRECTORY_SEPARATOR . date('Ymdhis') . rand(100, 999) . '.' . $extension;
+    }
+
+    /**
+     * 获取文件名
+     * @return string
+     */
+    private function getFileName()
+    {
+        return substr($this->filePath, strrpos($this->filePath, '/') + 1);
+    }
+
+    /**
+     * 获取文件完整路径
+     * @return string
+     */
+    private function getFilePath()
+    {
+        $fullName = $this->fullName;
+        $rootPath = $this->getModule()->uploadRoot;
+        if (substr($fullName, 0, 1) != '/') {
+            $fullName = '/' . $fullName;
+        }
+        return $rootPath . $fullName;
+    }
+
+    /**
+     * 获取附件模块实例
+     * @return \yuncms\attachment\Module
+     */
+    public function getModule()
+    {
+        return Yii::$app->getModule('attachment');
     }
 }
