@@ -28,10 +28,7 @@ class Uploader extends Object
     /**
      * @var array 配置数组
      */
-    public $config;
-
-
-    private $base64; //文件上传对象
+    public $config = [];
 
     /**
      * @var string 原始文件名
@@ -72,12 +69,22 @@ class Uploader extends Object
         "ERROR_FILE_MOVE" => "文件保存时出错",
         "ERROR_WRITE_CONTENT" => "写入文件内容错误",
         "ERROR_UNKNOWN" => "未知错误",
-        "ERROR_DEAD_LINK" => "链接不可用",
-        "ERROR_HTTP_LINK" => "链接不是http链接",
-        "ERROR_HTTP_CONTENTTYPE" => "链接contentType不正确",
         "INVALID_URL" => "非法 URL",
         "INVALID_IP" => "非法 IP"
     ];
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        if (!is_array($this->config['extensions'])) {
+            $this->config['extensions'] = preg_split('/[\s,]+/', strtolower($this->config['extensions']), -1, PREG_SPLIT_NO_EMPTY);
+        } else {
+            $this->config['extensions'] = array_map('strtolower', $this->config['extensions']);
+        }
+    }
 
     /**
      * 上传文件的主处理方法
@@ -140,6 +147,7 @@ class Uploader extends Object
         } else { //移动成功
             $this->stateInfo = 'SUCCESS';
         }
+        return;
     }
 
     /**
@@ -151,99 +159,58 @@ class Uploader extends Object
         $imgUrl = htmlspecialchars($this->fileField);
         $imgUrl = str_replace("&amp;", "&", $imgUrl);
 
-
-
         //http开头验证
         if (strpos($imgUrl, "http") !== 0) {
-            $this->stateInfo = $this->getStateInfo("ERROR_HTTP_LINK");
+            $this->stateInfo = Yii::t('attachment', 'The link is not an http link.');
             return;
         }
-
-        preg_match('/(^https*:\/\/[^:\/]+)/', $imgUrl, $matches);
-        $host_with_protocol = count($matches) > 1 ? $matches[1] : '';
-
-        // 判断是否是合法 url
-        if (!filter_var($host_with_protocol, FILTER_VALIDATE_URL)) {
-            $this->stateInfo = $this->getStateInfo("INVALID_URL");
+        $http = new Client();
+        $response = $http->get($imgUrl)->send();
+        if (!$response->isOk) {
+            $this->stateInfo = Yii::t('attachment', 'The link is not available.');
             return;
+        } else {
+            //格式验证(扩展名验证和Content-Type验证)
+            $this->oriName = basename($imgUrl);
+            $this->fileSize = strlen($response->content);
+            $this->fileType = $this->getExtension();
+            $this->fullName = $this->getFullName();
+            $this->filePath = $this->getFilePath();
+            $this->fileName = $this->getFileName();
+            $dirName = dirname($this->filePath);
+
+            //检查文件大小是否超出限制
+            if (!$this->checkType()) {
+                $this->stateInfo = Yii::t('attachment', 'The link contentType is incorrect.');
+                return;
+            }
+            if (!isset($response->headers['content-type']) || !stristr($response->headers['content-type'], "image")) {
+                $this->stateInfo = Yii::t('attachment', 'The link contentType is incorrect.');
+                return;
+            }
+
+            //检查文件大小是否超出限制
+            if (!$this->checkSize()) {
+                $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
+                return;
+            }
+
+            if (!is_dir($dirName)) {//递归创建保存目录
+                FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+            }
+            //检查文件大小是否超出限制
+            if (!$this->checkSize()) {
+                $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
+                return;
+            }
+            //移动文件
+            if (!(file_put_contents($this->filePath, $response->content) && file_exists($this->filePath))) { //移动失败
+                $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
+            } else { //移动成功
+                $this->stateInfo = 'SUCCESS';
+            }
         }
-
-        preg_match('/^https*:\/\/(.+)/', $host_with_protocol, $matches);
-        $host_without_protocol = count($matches) > 1 ? $matches[1] : '';
-
-        // 此时提取出来的可能是 ip 也有可能是域名，先获取 ip
-        $ip = gethostbyname($host_without_protocol);
-        // 判断是否是私有 ip
-        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
-            $this->stateInfo = $this->getStateInfo("INVALID_IP");
-            return;
-        }
-
-        //获取请求头并检测死链
-        $heads = get_headers($imgUrl, 1);
-        if (!(stristr($heads[0], "200") && stristr($heads[0], "OK"))) {
-            $this->stateInfo = $this->getStateInfo("ERROR_DEAD_LINK");
-            return;
-        }
-        //格式验证(扩展名验证和Content-Type验证)
-        $fileType = strtolower(strrchr($imgUrl, '.'));
-        if (!in_array($fileType, $this->config['allowFiles']) || !isset($heads['Content-Type']) || !stristr($heads['Content-Type'], "image")) {
-            $this->stateInfo = $this->getStateInfo("ERROR_HTTP_CONTENTTYPE");
-            return;
-        }
-
-        //打开输出缓冲区并获取远程图片
-        ob_start();
-        $context = stream_context_create(
-            array('http' => array(
-                'follow_location' => false // don't follow redirects
-            ))
-        );
-        readfile($imgUrl, false, $context);
-        $img = ob_get_contents();
-        ob_end_clean();
-        preg_match("/[\/]([^\/]*)[\.]?[^\.\/]*$/", $imgUrl, $m);
-
-        $this->oriName = $m ? $m[1] : "";
-        $this->fileSize = strlen($img);
-        $this->fileType = $this->getFileExt();
-        $this->fullName = $this->getFullName();
-        $this->filePath = $this->getFilePath();
-        $this->fileName = $this->getFileName();
-        $dirname = dirname($this->filePath);
-
-        //检查文件大小是否超出限制
-        if (!$this->checkSize()) {
-            $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
-            return;
-        }
-
-        //创建目录失败
-        if (!file_exists($dirname) && !mkdir($dirname, 0777, true)) {
-            $this->stateInfo = $this->getStateInfo("ERROR_CREATE_DIR");
-            return;
-        } else if (!is_writeable($dirname)) {
-            $this->stateInfo = $this->getStateInfo("ERROR_DIR_NOT_WRITEABLE");
-            return;
-        }
-
-        //移动文件
-        if (!(file_put_contents($this->filePath, $img) && file_exists($this->filePath))) { //移动失败
-            $this->stateInfo = $this->getStateInfo("ERROR_WRITE_CONTENT");
-        } else { //移动成功
-            $this->stateInfo = $this->stateMap[0];
-        }
-
-    }
-
-    /**
-     * 上传错误检查
-     * @param $errCode
-     * @return string
-     */
-    private function getStateInfo($errCode)
-    {
-        return !$this->stateMap[$errCode] ? $this->stateMap["ERROR_UNKNOWN"] : $this->stateMap[$errCode];
+        return;
     }
 
     /**
@@ -278,7 +245,7 @@ class Uploader extends Object
      */
     private function checkType()
     {
-        return in_array($this->getExtension(), Yii::$app->getModule('attachment')->fileAllowFiles);
+        return in_array($this->getExtension(), $this->config['extensions']);
     }
 
     /**

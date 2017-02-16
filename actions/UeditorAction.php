@@ -257,19 +257,24 @@ class UEditorAction extends Action
             "maxSize" => $this->options['imageMaxSize'],
             "oriName" => "remote.png"
         ];
-
-        $uploader = new Uploader([
-            'fileField' => $this->options['catcherFieldName'],
-            'config' => $config,
-        ]);
-        $uploader->upBase64();
-        return $uploader->getFileInfo();
-
         $sources = Yii::$app->request->post($this->options['catcherFieldName']);
         if (is_array($sources)) {
             $lists = [];
             foreach ($sources as $imgUrl) {
-                array_push($lists, $this->getRemoteImage($imgUrl));
+                $uploader = new Uploader([
+                    'fileField' => $imgUrl,
+                    'config' => $config,
+                ]);
+                $uploader->saveRemote();
+                $info = $uploader->getFileInfo();
+                array_push($lists, [
+                    "state" => $info["state"],
+                    "url" => $info["url"],
+                    "size" => $info["size"],
+                    "title" => htmlspecialchars($info["title"]),
+                    "original" => htmlspecialchars($info["original"]),
+                    "source" => htmlspecialchars($imgUrl)
+                ]);
             }
             return $lists;
         } else {

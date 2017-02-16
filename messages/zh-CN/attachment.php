@@ -17,16 +17,19 @@
  * NOTE: this file must be saved in UTF-8 encoding.
  */
 return [
+    'The link contentType is incorrect.'=>'链接contentType不正确',
+    'The link is not an http link.'=>'链接不是http链接',
+    'The link is not available.' => '该链接不可达。',
     'File Type' => '文件类型',
-    'The file type is not allowed.'=>'文件类型不允许上传。',
-    'The file size exceeds the site limit.'=>'文件大小超出网站限制',
+    'The file type is not allowed.' => '文件类型不允许上传。',
+    'The file size exceeds the site limit.' => '文件大小超出网站限制',
     'Temp file error.' => '临时文件错误',
     'Temp file not found.' => '找不到临时文件',
     'File not found.' => '找不到上传文件',
     'File does not exist.' => '文件不存在',
     'File mineType' => '文件类型',
     'ID' => '',
-    'An error occurred while saving the file.'=>'文件保存时出错',
+    'An error occurred while saving the file.' => '文件保存时出错',
     'Model' => '模型',
     'Model Id' => '模型ID',
     'Batch Deletion' => '批量删除',
