@@ -51,15 +51,33 @@ class UploadController extends Controller
             'ueditor' => [
                 'class' => 'yuncms\attachment\actions\UEditorAction',
             ],
+            'um-upload' => [
+                'class' => 'xutl\umeditor\UMeditorAction',
+                'onComplete' => [$this, 'saveFile']
+            ],
+            'sn-upload' => [
+                'class' => 'xutl\summernote\SummerNoteAction',
+                'onComplete' => [$this, 'saveFile']
+            ],
         ];
+    }
+
+    /**
+     * 保存附件
+     * @param string $filename
+     * @param array $params
+     * @return string 附件访问Url
+     */
+    protected function saveFile($filename, $params)
+    {
+        //返回图像的Url地址
+        return '';
     }
 
 
     public function actionUpload()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-
-
         return ['url' => '/uploads/img.img'];
     }
 }
