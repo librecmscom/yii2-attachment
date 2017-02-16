@@ -33,7 +33,7 @@ class UploadController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['upload', 'ueditor'],
+                        'actions' => ['upload', 'ueditor','um-upload','sn-upload','editor-md'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -49,23 +49,24 @@ class UploadController extends Controller
     {
         return [
             'ueditor' => [
-                'class' => 'yuncms\attachment\actions\UEditorAction',
+                'class' => 'xutl\ueditor\UEditorAction',
             ],
             'um-upload' => [
                 'class' => 'xutl\umeditor\UMeditorAction',
-                'onComplete' => [$this, 'saveFile']
             ],
             'sn-upload' => [
                 'class' => 'xutl\summernote\SummerNoteAction',
-                'onComplete' => [$this, 'saveFile']
+            ],
+            'editor-md' => [
+                'class' => 'xutl\editormd\MarkdownAction',
             ],
         ];
     }
 
     /**
      * 保存附件
-     * @param string $filename
-     * @param array $params
+     * @param string $filename 文件临时路径
+     * @param array $params GET参数
      * @return string 附件访问Url
      */
     protected function saveFile($filename, $params)
@@ -73,7 +74,6 @@ class UploadController extends Controller
         //返回图像的Url地址
         return '';
     }
-
 
     public function actionUpload()
     {
