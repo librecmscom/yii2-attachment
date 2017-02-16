@@ -54,24 +54,8 @@ class Uploader extends Object
      * @var string 绝对路径文件名
      */
     private $filePath;
-
     private $fileType; //文件类型
     private $stateInfo; //上传状态信息,
-    private $stateMap = [ //上传状态映射表，国际化用户需考虑此处数据的国际化
-        "SUCCESS", //上传成功标记，在UEditor中内不可改变，否则flash判断会出错
-        "文件大小超出 upload_max_filesize 限制",
-        "文件大小超出 MAX_FILE_SIZE 限制",
-        "文件未被完整上传",
-        "没有文件被上传",
-        "上传文件为空",
-        "ERROR_CREATE_DIR" => "目录创建失败",
-        "ERROR_DIR_NOT_WRITEABLE" => "目录没有写权限",
-        "ERROR_FILE_MOVE" => "文件保存时出错",
-        "ERROR_WRITE_CONTENT" => "写入文件内容错误",
-        "ERROR_UNKNOWN" => "未知错误",
-        "INVALID_URL" => "非法 URL",
-        "INVALID_IP" => "非法 IP"
-    ];
 
     /**
      * @inheritdoc

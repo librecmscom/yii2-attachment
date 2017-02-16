@@ -10,7 +10,7 @@ use yii\web\AssetBundle;
 
 class FileUploadAsset extends AssetBundle
 {
-    public $sourcePath = '@vendor/yuncms/yii2-attachment/assets';
+    public $sourcePath = '@yuncms/attachment/assets';
 
     public $css = [
         'css/jquery.fileupload.css',
