@@ -32,7 +32,7 @@ class UploadController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['upload', 'ueditor','um-upload','sn-upload','editor-md'],
+                        'actions' => ['upload', 'ueditor', 'um-upload', 'sn-upload', 'editor-md'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -60,5 +60,13 @@ class UploadController extends Controller
                 'class' => 'xutl\editormd\MarkdownAction',
             ],
         ];
+    }
+
+    /**
+     * Ajax
+     */
+    public function actionUpload()
+    {
+        print_r(Yii::$app->request->getRawBody());
     }
 }
