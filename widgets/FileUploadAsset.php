@@ -4,13 +4,13 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
-namespace yuncms\attachment;
+namespace yuncms\attachment\widgets;
 
 use yii\web\AssetBundle;
 
 class FileUploadAsset extends AssetBundle
 {
-    public $sourcePath = '@yuncms/attachment/assets';
+    public $sourcePath = '@yuncms/attachment/widgets/assets';
 
     public $css = [
         'css/jquery.fileupload.css',

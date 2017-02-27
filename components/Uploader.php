@@ -220,7 +220,7 @@ class Uploader extends Object
         return [
             "state" => $this->stateInfo,
             "url" => $fullName,
-            "title" => $this->fileName,
+            "title" => $this->oriName,
             "original" => $this->oriName,
             "type" => $this->fileType,
             "size" => $this->fileSize
@@ -294,10 +294,11 @@ class Uploader extends Object
     public function saveModel()
     {
         $fileName = basename($this->filePath);
+        $fullName = str_replace('\\', '/', $this->fullName);
         $at = new Attachment([
             'filename' => $fileName,
             'original_name' => $this->oriName,
-            'path' => $this->filePath,
+            'path' => $fullName,
             'size' => $this->fileSize,
             'type' => $this->fileType,
         ]);

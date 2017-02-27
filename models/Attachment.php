@@ -86,11 +86,8 @@ class Attachment extends ActiveRecord
             'user_id' => Yii::t('attachment', 'User Id'),
             'filename' => Yii::t('attachment', 'Filename'),
             'original_name' => Yii::t('attachment', 'Original FileName'),
-            'hash' => Yii::t('attachment', 'File Hash'),
             'size' => Yii::t('attachment', 'File Size'),
             'type' => Yii::t('attachment', 'File Type'),
-            'mine_type' => Yii::t('attachment', 'File mineType'),
-            'ext' => Yii::t('attachment', 'File Ext'),
             'path' => Yii::t('attachment', 'Path'),
             'ip' => Yii::t('attachment', 'User Ip'),
             'created_at' => Yii::t('attachment', 'Created At'),
@@ -104,8 +101,6 @@ class Attachment extends ActiveRecord
     {
         return [
             [['filename', 'original_name'], 'required'],
-            ['type', 'default', 'value' => self::TYPE_FILE],
-            ['type', 'in', 'range' => [self::TYPE_IMAGE, self::TYPE_VIDEO, self::TYPE_FILE]],
         ];
     }
 
@@ -116,10 +111,5 @@ class Attachment extends ActiveRecord
     public function getUser()
     {
         return $this->hasOne(Yii::$app->user->identityClass, ['id' => 'user_id']);
-    }
-
-    public function getUrl()
-    {
-        return Yii::$app->getModule('attachment')->getUrl($this->path);
     }
 }
