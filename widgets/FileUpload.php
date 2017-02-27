@@ -54,7 +54,7 @@ class FileUpload extends InputWidget
             $this->options['class'] = 'sr-only';
         }
         if ($this->hasModel()) {
-            $this->options['name'] = $this->name;
+            //$this->options['name'] = $this->name;
             $input = Html::activeFileInput($this->model, $this->attribute, ArrayHelper::merge($this->options, [
                 'data-url' => Url::to($this->serverUrl)
             ]));

@@ -10,10 +10,13 @@ use Yii;
 use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
+use yuncms\attachment\components\Uploader;
 
 /**
  * Class UploadController
  * @package yuncms\attachment\controllers
+ *
+ * @property \yuncms\attachment\Module $module
  */
 class UploadController extends Controller
 {
@@ -32,7 +35,7 @@ class UploadController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['upload', 'ueditor', 'um-upload', 'sn-upload', 'editor-md'],
+                        'actions' => ['upload', 'ueditor', 'um-upload', 'sn-upload', 'editor-md', 'plupload'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -59,6 +62,22 @@ class UploadController extends Controller
             'editor-md' => [
                 'class' => 'xutl\editormd\MarkdownAction',
             ],
+            'plupload' => [
+                'class' => 'xutl\plupload\PluploadAction',
+                'onComplete' => function ($filename, $params) {
+                    $uploader = new Uploader([
+                        'fileField' => $filename,
+                        'config' => [
+                            'maxFiles' => 1,
+                            'extensions' => $this->module->fileAllowFiles,
+                            'maxSize' => $this->module->getMaxUploadByte(),
+                            'checkExtensionByMimeType' => false,
+                        ],
+                    ]);
+                    $uploader->saveLocal();
+                    return $uploader->getFileInfo();
+                }
+            ],
         ];
     }
 
@@ -67,6 +86,10 @@ class UploadController extends Controller
      */
     public function actionUpload()
     {
+        return $this->render('upload', [
+
+        ]);
+
         print_r(Yii::$app->request->getRawBody());
     }
 }

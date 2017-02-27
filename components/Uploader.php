@@ -202,6 +202,40 @@ class Uploader extends Object
     }
 
     /**
+     * 保存本地其他地方上传的文件
+     */
+    public function saveLocal()
+    {
+        $file = file_get_contents($this->fileField);
+        $this->oriName = basename($this->fileField);
+        $this->fileSize = strlen($file);
+        $this->fileType = $this->getExtension();
+        $this->fullName = $this->getFullName();
+        $this->filePath = $this->getFilePath();
+        $this->fileName = $this->getFileName();
+        $dirName = dirname($this->filePath);
+
+        if (!is_dir($dirName)) {//递归创建保存目录
+            FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+        }
+        //检查文件大小是否超出限制
+        if (!$this->checkSize()) {
+            $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
+            return;
+        }
+
+        //移动文件
+        if (!(file_put_contents($this->filePath, $file) && file_exists($this->filePath))) { //移动失败
+            $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
+        } else { //移动成功
+            @unlink($this->fileField);
+            $this->saveModel();
+            $this->stateInfo = 'SUCCESS';
+        }
+        return;
+    }
+
+    /**
      * 文件大小检测
      * @return bool
      */
