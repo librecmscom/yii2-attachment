@@ -5,6 +5,7 @@ use yii\helpers\Html;
 use yuncms\admin\widgets\Jarvis;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+
 /* @var $this yii\web\View */
 /* @var $searchModel yuncms\attachment\backend\models\AttachmentSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
@@ -12,7 +13,7 @@ use yii\widgets\Pjax;
 $this->title = Yii::t('attachment', 'Manage Attachment');
 $this->params['breadcrumbs'][] = $this->title;
 $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
-    yii.confirm('".Yii::t('app', 'Are you sure you want to delete this item?')."',function(){
+    yii.confirm('" . Yii::t('app', 'Are you sure you want to delete this item?') . "',function(){
         var ids = jQuery('#gridview').yiiGridView(\"getSelectedRows\");
         jQuery.post(\"/attachment/attachment/batch-delete\",{ids:ids});
     });
@@ -21,7 +22,7 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
 <section id="widget-grid">
     <div class="row">
         <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 attachment-index">
-            <?php Pjax::begin(); ?>                
+            <?php Pjax::begin(); ?>
             <?php Jarvis::begin([
                 'noPadding' => true,
                 'editbutton' => false,
@@ -33,7 +34,7 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
                         'url' => ['index'],
                     ],
                     [
-                        'options' => ['id' => 'batch_deletion','class'=>'btn btn-sm btn-danger'],
+                        'options' => ['id' => 'batch_deletion', 'class' => 'btn btn-sm btn-danger'],
                         'label' => Yii::t('attachment', 'Batch Deletion'),
                         'url' => 'javascript:void(0);',
                     ]
@@ -49,29 +50,18 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
                         'class' => 'yii\grid\CheckboxColumn',
                         "name" => "id",
                     ],
-                    //['class' => 'yii\grid\SerialColumn'],
                     'id',
                     'user.username',
                     'filename',
                     'original_name',
-                    'model',
-                     'hash',
-                     'size',
-                     'type',
-                    // 'mine_type',
-                    // 'ext',
-                    // 'path',
-                     'ip',
-                     'created_at',
+                    'size',
+                    'type',
+                    'ip',
+                    'created_at:datetime',
                     [
                         'class' => 'yii\grid\ActionColumn',
                         'header' => Yii::t('app', 'Operation'),
-                        'template' => '{view} {update} {delete}',
-                        //'buttons' => [
-                        //    'update' => function ($url, $model, $key) {
-                        //        return $model->status === 'editable' ? Html::a('Update', $url) : '';
-                        //    },
-                        //],
+                        'template' => '{view} {delete}',
                     ],
                 ],
             ]); ?>

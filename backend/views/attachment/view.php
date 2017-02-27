@@ -7,7 +7,7 @@ use yuncms\admin\widgets\Jarvis;
 /* @var $this yii\web\View */
 /* @var $model yuncms\attachment\models\Attachment */
 
-$this->title = $model->name;
+$this->title = $model->filename;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('attachment', 'Manage Attachment'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -22,11 +22,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 'bodyToolbarActions' => [
                     [
                         'label' => Yii::t('attachment', 'Manage Attachment'),
-                        'url' => ['/attachment/index'],
+                        'url' => ['index'],
                     ],
                     [
                         'label' => Yii::t('attachment', 'Delete Attachment'),
-                        'url' => ['/attachment/delete', 'id' => $model->id],
+                        'url' => ['delete', 'id' => $model->id],
                         'options' => [
                             'class' => 'btn btn-danger btn-sm',
                             'data' => [
@@ -40,16 +40,12 @@ $this->params['breadcrumbs'][] = $this->title;
             <?= DetailView::widget([
                 'model' => $model,
                 'attributes' => [
-                            'id',
-                    'user_id',
+                    'id',
+                    'user.username',
                     'filename',
                     'original_name',
-                    'model',
-                    'hash',
                     'size',
                     'type',
-                    'mine_type',
-                    'ext',
                     'path',
                     'ip',
                     'created_at',
