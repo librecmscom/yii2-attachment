@@ -29,12 +29,6 @@ use yii\db\BaseActiveRecord;
  */
 class Attachment extends ActiveRecord
 {
-    const TYPE_IMAGE = 'image';
-
-    const TYPE_VIDEO = 'video';
-
-    const TYPE_FILE = 'file';
-
     /**
      * 定义数据表
      */
@@ -111,5 +105,20 @@ class Attachment extends ActiveRecord
     public function getUser()
     {
         return $this->hasOne(Yii::$app->user->identityClass, ['id' => 'user_id']);
+    }
+
+    /**
+     * 获取访问Url
+     */
+    public function getUrl()
+    {
+        return Yii::$app->getModule('attachment')->uploads . '/' . $this->path;
+    }
+
+    public function afterDelete()
+    {
+        $path = Yii::$app->getModule('attachment')->uploadRoot . DIRECTORY_SEPARATOR . $this->path;
+        @unlink($path);
+        return parent::afterDelete();
     }
 }
