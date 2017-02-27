@@ -12,6 +12,7 @@ use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use yii\validators\FileValidator;
 use yii\httpclient\Client;
+use yuncms\attachment\models\Attachment;
 
 /**
  * Class Uploader
@@ -165,7 +166,7 @@ class Uploader extends Object
             $this->fileName = $this->getFileName();
             $dirName = dirname($this->filePath);
 
-            //检查文件大小是否超出限制
+            //检查文件类型
             if (!$this->checkType()) {
                 $this->stateInfo = Yii::t('attachment', 'The link contentType is incorrect.');
                 return;
@@ -292,6 +293,14 @@ class Uploader extends Object
      */
     public function saveModel()
     {
-        return true;
+        $fileName = basename($this->filePath);
+        $at = new Attachment([
+            'filename' => $fileName,
+            'original_name' => $this->oriName,
+            'path' => $this->filePath,
+            'size' => $this->fileSize,
+            'type' => $this->fileType,
+        ]);
+        return $at->save();
     }
 }
