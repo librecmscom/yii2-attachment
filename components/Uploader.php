@@ -94,6 +94,7 @@ class Uploader extends Object
             if (!($file->saveAs($this->filePath) && file_exists($this->filePath))) {
                 $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
             } else { //移动成功
+                $this->saveModel();
                 $this->stateInfo = 'SUCCESS';
             }
         }
@@ -129,6 +130,7 @@ class Uploader extends Object
         if (!(file_put_contents($this->filePath, $img) && file_exists($this->filePath))) { //移动失败
             $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
         } else { //移动成功
+            $this->saveModel();
             $this->stateInfo = 'SUCCESS';
         }
         return;
@@ -191,6 +193,7 @@ class Uploader extends Object
             if (!(file_put_contents($this->filePath, $response->content) && file_exists($this->filePath))) { //移动失败
                 $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
             } else { //移动成功
+                $this->saveModel();
                 $this->stateInfo = 'SUCCESS';
             }
         }
@@ -281,5 +284,14 @@ class Uploader extends Object
     public function getModule()
     {
         return Yii::$app->getModule('attachment');
+    }
+
+    /**
+     * 保存到模型
+     * @return bool
+     */
+    public function saveModel()
+    {
+        return true;
     }
 }
