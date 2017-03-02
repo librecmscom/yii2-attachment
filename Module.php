@@ -96,9 +96,15 @@ class Module extends \yii\base\Module
 
     /**
      * 获取存储磁盘
+     * @param string $name diskname
      */
-    public function disk(){
-
+    public function disk($name)
+    {
+        if(isset($this->disk[$name])){
+            return Yii::createObject($this->disk[$name]);
+        } else {
+            return false;
+        }
     }
 
     /**
