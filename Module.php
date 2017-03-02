@@ -72,6 +72,12 @@ class Module extends \yii\base\Module
     public $fileAllowFiles = 'rar,zip,tar,gz,7z,bz2,cab,iso,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,md,xml,xmind';
 
     /**
+     * @var array 存储配置
+     * @see https://github.com/creocoder/yii2-flysystem
+     */
+    public $disk = [];
+
+    /**
      * 初始化附件存储路径
      */
     public function init()
@@ -86,6 +92,13 @@ class Module extends \yii\base\Module
             FileHelper::createDirectory($this->tempPath, $this->dirMode, true);
         }
         $this->uploads = Yii::getAlias($this->uploads);
+    }
+
+    /**
+     * 获取存储磁盘
+     */
+    public function disk(){
+
     }
 
     /**
