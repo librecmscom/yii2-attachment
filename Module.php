@@ -96,7 +96,8 @@ class Module extends \yii\base\Module
 
     /**
      * 获取存储磁盘
-     * @param string $name diskname
+     * @param string $name 磁盘名称
+     * @return bool|object
      */
     public function disk($name)
     {
