@@ -35,7 +35,7 @@ class UploadController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['upload', 'ueditor', 'um-upload', 'sn-upload', 'editor-md', 'plupload'],
+                        'actions' => ['upload', 'ueditor', 'um-upload', 'sn-upload', 'editor-md', 'pl-upload'],
                         'roles' => ['@'],
                     ],
                 ],
@@ -62,7 +62,7 @@ class UploadController extends Controller
             'editor-md' => [
                 'class' => 'xutl\editormd\MarkdownAction',
             ],
-            'plupload' => [
+            'pl-upload' => [
                 'class' => 'xutl\plupload\PluploadAction',
                 'onComplete' => function ($filename, $params) {
                     $uploader = new Uploader([
