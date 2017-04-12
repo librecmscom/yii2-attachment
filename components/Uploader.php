@@ -12,6 +12,7 @@ use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use yii\validators\FileValidator;
 use yii\httpclient\Client;
+use yuncms\attachment\ModuleTrait;
 use yuncms\attachment\models\Attachment;
 
 /**
@@ -20,6 +21,8 @@ use yuncms\attachment\models\Attachment;
  */
 class Uploader extends Object
 {
+
+	use ModuleTrait;
 
     /**
      * @var string 文件上传字段
@@ -64,6 +67,14 @@ class Uploader extends Object
     public function init()
     {
         parent::init();
+
+		$this->config = array_merge([
+            'maxFiles' => 1,
+            'maxSize' => $this->getModule()->getMaxUploadByte(),
+            'extensions' => $this->getModule()->fileAllowFiles,
+            'checkExtensionByMimeType' => false,
+        ], $this->config);
+
         if (!is_array($this->config['extensions'])) {
             $this->config['extensions'] = preg_split('/[\s,]+/', strtolower($this->config['extensions']), -1, PREG_SPLIT_NO_EMPTY);
         } else {
