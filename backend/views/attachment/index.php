@@ -2,9 +2,11 @@
 use yii\web\View;
 use yii\helpers\Url;
 use yii\helpers\Html;
-use yuncms\admin\widgets\Jarvis;
 use yii\grid\GridView;
 use yii\widgets\Pjax;
+use xutl\inspinia\Box;
+use xutl\inspinia\Toolbar;
+use xutl\inspinia\Alert;
 
 /* @var $this yii\web\View */
 /* @var $searchModel yuncms\attachment\backend\models\AttachmentSearch */
@@ -19,32 +21,40 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
     });
 });", View::POS_LOAD);
 ?>
-<section id="widget-grid">
+<div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
-        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 attachment-index">
+        <div class="col-lg-12">
+            <?= Alert::widget() ?>
             <?php Pjax::begin(); ?>
-            <?php Jarvis::begin([
-                'noPadding' => true,
-                'editbutton' => false,
-                'deletebutton' => false,
+            <?php Box::begin([
                 'header' => Html::encode($this->title),
-                'bodyToolbarActions' => [
-                    [
-                        'label' => Yii::t('attachment', 'Manage Attachment'),
-                        'url' => ['index'],
-                    ],
-                    [
-                        'options' => ['id' => 'batch_deletion', 'class' => 'btn btn-sm btn-danger'],
-                        'label' => Yii::t('attachment', 'Batch Deletion'),
-                        'url' => 'javascript:void(0);',
-                    ]
-                ]
             ]); ?>
-            <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+            <div class="row">
+                <div class="col-sm-4 m-b-xs">
+                    <?= Toolbar::widget(['items' =>
+                        [
+                            [
+                                'label' => Yii::t('attachment', 'Manage Attachment'),
+                                'url' => ['index'],
+                            ],
+                            [
+                                'options' => ['id' => 'batch_deletion', 'class' => 'btn btn-sm btn-danger'],
+                                'label' => Yii::t('attachment', 'Batch Deletion'),
+                                'url' => 'javascript:void(0);',
+                            ]
+                        ]
+                    ]); ?>
+                </div>
+                <div class="col-sm-8 m-b-xs">
+                    <?php echo $this->render('_search', ['model' => $searchModel]); ?>
+                </div>
+            </div>
+
             <?= GridView::widget([
                 'dataProvider' => $dataProvider,
                 'options' => ['id' => 'gridview'],
-                'filterModel' => $searchModel,
+                'layout' => "{items}\n{summary}\n{pager}",
+                //'filterModel' => $searchModel,
                 'columns' => [
                     [
                         'class' => 'yii\grid\CheckboxColumn',
@@ -65,8 +75,8 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
                     ],
                 ],
             ]); ?>
-            <?php Jarvis::end(); ?>
+            <?php Box::end(); ?>
             <?php Pjax::end(); ?>
-        </article>
+        </div>
     </div>
-</section>
+</div>
