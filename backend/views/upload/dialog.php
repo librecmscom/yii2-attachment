@@ -29,7 +29,7 @@ $asset = PluploadJuiAsset::register($this);
         jQuery("#uploader").plupload({
             // General settings
             runtimes: 'html5,flash,silverlight,html4',
-            url: '<?=Url::to(['/attachment/upload/upload'])?>',
+            url: '<?=Url::to(['/attachment/upload/multiple-upload'])?>',
             // User can upload no more then 20 files in one go (sets multiple_queues to false)
             max_file_count: <?=$maxFileCount;?>,
 
