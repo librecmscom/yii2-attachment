@@ -1,5 +1,5 @@
 <?php
-
+use yii\helpers\Url;
 use yii\helpers\Html;
 use xutl\plupload\Plupload;
 use xutl\plupload\PluploadJuiAsset;
@@ -29,7 +29,7 @@ $asset = PluploadJuiAsset::register($this);
         jQuery("#uploader").plupload({
             // General settings
             runtimes: 'html5,flash,silverlight,html4',
-            url: 'aaa',
+            url: '<?=Url::to(['/attachment/upload/upload'])?>',
             // User can upload no more then 20 files in one go (sets multiple_queues to false)
             max_file_count: <?=$maxFileCount;?>,
 
@@ -102,7 +102,7 @@ $asset = PluploadJuiAsset::register($this);
             return;
         }
 
-        dialog.title('上传附件');
+        dialog.title('<?=Yii::t('attachment', 'File Upload')?>');
         dialog.reset();
     })
 </script>
