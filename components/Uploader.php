@@ -4,6 +4,7 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace yuncms\attachment\components;
 
 use Yii;
@@ -22,7 +23,7 @@ use yuncms\attachment\models\Attachment;
 class Uploader extends Object
 {
 
-	use ModuleTrait;
+    use ModuleTrait;
 
     /**
      * @var string 文件上传字段
@@ -68,7 +69,7 @@ class Uploader extends Object
     {
         parent::init();
 
-		$this->config = array_merge([
+        $this->config = array_merge([
             'maxFiles' => 1,
             'maxSize' => $this->getModule()->getMaxUploadByte(),
             'extensions' => $this->getModule()->fileAllowFiles,
@@ -83,8 +84,37 @@ class Uploader extends Object
     }
 
     /**
+     * 存储由UploadedFile上传的文件
+     * @param UploadedFile $file
+     * @return bool
+     */
+    public function up(UploadedFile $file)
+    {
+        //设置文件名称
+        $this->oriName = $file->name;
+        //设置文件大小
+        $this->fileSize = $file->size;
+        $this->fileType = $this->getExtension();
+        $this->fullName = $this->getFullName();
+        $this->filePath = $this->getFilePath();
+        $this->fileName = $this->getFileName();
+        $dirName = dirname($this->filePath);
+        if (!is_dir($dirName)) {//递归创建保存目录
+            FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+        }
+        if (!($file->saveAs($this->filePath) && file_exists($this->filePath))) {
+            $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
+            return false;
+        } else { //移动成功
+            $this->saveModel();
+            $this->stateInfo = 'SUCCESS';
+            return true;
+        }
+    }
+
+    /**
      * 上传文件的主处理方法
-     * @return mixed
+     * @return bool
      */
     public function upFile()
     {
@@ -105,17 +135,19 @@ class Uploader extends Object
             }
             if (!($file->saveAs($this->filePath) && file_exists($this->filePath))) {
                 $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
+                return false;
             } else { //移动成功
                 $this->saveModel();
                 $this->stateInfo = 'SUCCESS';
+                return true;
             }
         }
-        return;
+        return false;
     }
 
     /**
      * 处理base64编码的图片上传
-     * @return mixed
+     * @return bool
      */
     public function upBase64()
     {
@@ -135,22 +167,23 @@ class Uploader extends Object
         //检查文件大小是否超出限制
         if (!$this->checkSize()) {
             $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
-            return;
+            return false;
         }
 
         //移动文件
         if (!(file_put_contents($this->filePath, $img) && file_exists($this->filePath))) { //移动失败
             $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
+            return false;
         } else { //移动成功
             $this->saveModel();
             $this->stateInfo = 'SUCCESS';
+            return true;
         }
-        return;
     }
 
     /**
      * 拉取远程图片
-     * @return mixed
+     * @return bool
      */
     public function saveRemote()
     {
@@ -160,13 +193,13 @@ class Uploader extends Object
         //http开头验证
         if (strpos($imgUrl, "http") !== 0) {
             $this->stateInfo = Yii::t('attachment', 'The link is not an http link.');
-            return;
+            return false;
         }
         $http = new Client();
         $response = $http->get($imgUrl)->send();
         if (!$response->isOk) {
             $this->stateInfo = Yii::t('attachment', 'The link is not available.');
-            return;
+            return false;
         } else {
             //格式验证(扩展名验证和Content-Type验证)
             $this->oriName = basename($imgUrl);
@@ -180,17 +213,17 @@ class Uploader extends Object
             //检查文件类型
             if (!$this->checkType()) {
                 $this->stateInfo = Yii::t('attachment', 'The link contentType is incorrect.');
-                return;
+                return false;
             }
             if (!isset($response->headers['content-type']) || !stristr($response->headers['content-type'], "image")) {
                 $this->stateInfo = Yii::t('attachment', 'The link contentType is incorrect.');
-                return;
+                return false;
             }
 
             //检查文件大小是否超出限制
             if (!$this->checkSize()) {
                 $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
-                return;
+                return false;
             }
 
             if (!is_dir($dirName)) {//递归创建保存目录
@@ -199,21 +232,23 @@ class Uploader extends Object
             //检查文件大小是否超出限制
             if (!$this->checkSize()) {
                 $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
-                return;
+                return false;
             }
             //移动文件
             if (!(file_put_contents($this->filePath, $response->content) && file_exists($this->filePath))) { //移动失败
                 $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
+                return false;
             } else { //移动成功
                 $this->saveModel();
                 $this->stateInfo = 'SUCCESS';
+                return true;
             }
         }
-        return;
     }
 
     /**
      * 保存本地其他地方上传的文件
+     * @return bool
      */
     public function saveLocal()
     {
@@ -232,18 +267,19 @@ class Uploader extends Object
         //检查文件大小是否超出限制
         if (!$this->checkSize()) {
             $this->stateInfo = Yii::t('attachment', 'The file size exceeds the site limit.');
-            return;
+            return false;
         }
 
         //移动文件
         if (!(file_put_contents($this->filePath, $file) && file_exists($this->filePath))) { //移动失败
             $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
+            return false;
         } else { //移动成功
             @unlink($this->fileField);
             $this->saveModel();
             $this->stateInfo = 'SUCCESS';
+            return true;
         }
-        return;
     }
 
     /**
