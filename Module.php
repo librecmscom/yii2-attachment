@@ -130,12 +130,32 @@ class Module extends \yii\base\Module
     }
 
     /**
+     * Returns an unused file path by adding a filename suffix if necessary.
+     * @param string $path
+     * @return string
+     */
+    protected function getUnusedPath($path)
+    {
+        $newPath = $path;
+        $info = pathinfo($path);
+        $suffix = 1;
+        while (file_exists($newPath)) {
+            $newPath = $info['dirname'] . DIRECTORY_SEPARATOR . "{$info['filename']}_{$suffix}";
+            if (isset($info['extension'])) {
+                $newPath .= ".{$info['extension']}";
+            }
+            $suffix++;
+        }
+        return $newPath;
+    }
+
+    /**
      * 获取附件访问Url
      * @param string $filePath 附件相对路径
      * @return string
      */
     public function getUrl($filePath)
     {
-        return $this->uploads . '/' . $filePath;
+        return $this->uploads . $filePath;
     }
 }
