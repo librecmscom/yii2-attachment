@@ -55,7 +55,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     'type',
                     'path',
                     'ip',
-                    'created_at',
+                    'created_at:datetime',
                 ],
             ]) ?>
             <?php Box::end(); ?>
