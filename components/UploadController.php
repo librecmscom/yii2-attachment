@@ -38,7 +38,10 @@ class UploadController extends Controller
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => ['upload', 'ueditor', 'um-upload', 'sn-upload', 'editor-md', 'dialog','multiple-upload'],
+                        'actions' => [
+                            'upload', 'ueditor', 'um-upload', 'sn-upload', 'editor-md', 'dialog', 'multiple-upload',
+                            'file-upload', 'files-upload', 'image-upload', 'images-upload',
+                        ],
                         'roles' => ['@'],
                     ],
                 ],
@@ -64,6 +67,26 @@ class UploadController extends Controller
             ],
             'editor-md' => [
                 'class' => 'xutl\editormd\MarkdownAction',
+            ],
+            'file-upload' => [
+                'class' => 'xutl\fileupload\UploadAction',
+                'multiple' => false,
+                'onlyImage' => false,
+            ],
+            'files-upload' => [
+                'class' => 'xutl\fileupload\UploadAction',
+                'multiple' => true,
+                'onlyImage' => false,
+            ],
+            'image-upload' => [
+                'class' => 'xutl\fileupload\UploadAction',
+                'multiple' => false,
+                'onlyImage' => true,
+            ],
+            'images-upload' => [
+                'class' => 'xutl\fileupload\UploadAction',
+                'multiple' => true,
+                'onlyImage' => true,
             ],
         ];
     }
