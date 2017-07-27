@@ -6,7 +6,7 @@
     "license": "MIT",
     "require": {
         "yiisoft/yii2": "~2.0",
-        "creocoder/yii2-flysystem": "0.8.*"
+        "creocoder/yii2-flysystem": "0.9.*"
     },
     "autoload": {
         "psr-4": {
