@@ -6,7 +6,7 @@
 [![Total Downloads](https://poser.pugx.org/yuncms/yii2-attachment/downloads.png)](https://packagist.org/packages/yuncms/yii2-attachment)
 [![Reference Status](https://www.versioneye.com/php/yuncms:yii2-attachment/reference_badge.svg)](https://www.versioneye.com/php/yuncms:yii2-attachment/references)
 [![Build Status](https://img.shields.io/travis/yiisoft/yii2-attachment.svg)](http://travis-ci.org/yuncms/yii2-attachment)
-[![Dependency Status](https://www.versioneye.com/php/yuncms:yii2-attachment/master/badge.png)](https://www.versioneye.com/php/yuncms:yii2-attachment/master)
+[![Dependency Status](https://www.versioneye.com/php/yuncms:yii2-attachment/dev-master/badge.png)](https://www.versioneye.com/php/yuncms:yii2-attachment/dev-master)
 [![License](https://poser.pugx.org/yuncms/yii2-attachment/license.svg)](https://packagist.org/packages/yuncms/yii2-attachment)
 
 

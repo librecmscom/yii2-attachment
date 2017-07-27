@@ -4,7 +4,7 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
-namespace yuncms\attachment\controllers;
+namespace yuncms\attachment\frontend\controllers;
 
 use Yii;
 
