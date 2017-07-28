@@ -72,3 +72,8 @@ to the `require` section of your composer.json.
     ],
 ]
 ````
+
+## License
+
+This is released under the MIT License. See the bundled [LICENSE.md](LICENSE.md)
+for details.
