@@ -33,6 +33,21 @@ class AttachmentController extends Controller
         ];
     }
 
+    public function actions()
+    {
+        return [
+            //....
+            'setting' => [
+                'class' => 'yuncms\system\actions\SettingsAction',
+                'modelClass' => 'yuncms\attachment\backend\models\Setting',
+                //'scenario' => 'user',
+                //'scenario' => 'site', // Change if you want to re-use the model for multiple setting form.
+                'viewName' => 'setting'    // The form we need to render
+            ],
+            //....
+        ];
+    }
+
     /**
      * Lists all Attachment models.
      * @return mixed
