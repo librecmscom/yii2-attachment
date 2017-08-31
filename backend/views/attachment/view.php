@@ -48,7 +48,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 'model' => $model,
                 'attributes' => [
                     'id',
-                    'user.name',
+                    'user.username',
                     'filename',
                     'original_name',
                     'size',

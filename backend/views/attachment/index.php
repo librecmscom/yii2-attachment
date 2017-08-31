@@ -61,7 +61,7 @@ $this->registerJs("jQuery(\"#batch_deletion\").on(\"click\", function () {
                         "name" => "id",
                     ],
                     'id',
-                    'user.name',
+                    'user.username',
                     'filename',
                     'original_name',
                     'size',
