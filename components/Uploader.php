@@ -8,7 +8,7 @@
 namespace yuncms\attachment\components;
 
 use Yii;
-use yii\base\Object;
+use yii\base\Component;
 use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use yii\validators\FileValidator;
@@ -20,10 +20,31 @@ use yuncms\attachment\models\Attachment;
  * Class Uploader
  * @package yuncms\attachment\components
  */
-class Uploader extends Object
+class Uploader extends Component
 {
+    /**
+     * @var string 附件访问路径
+     */
+    public $uploads = '@web/uploads';
 
-    use ModuleTrait;
+    /**
+     * @var string 附件存储路径
+     */
+    public $uploadRoot = '@root/uploads';
+
+    /**
+     * 允许的文件后缀
+     * @var string 允许的文件后缀
+     */
+    public $fileAllowFiles;
+
+    /**
+     * @var integer the permission to be set for newly created directories.
+     * This value will be used by PHP chmod() function. No umask will be applied.
+     * Defaults to 0775, meaning the directory is read-writable by owner and group,
+     * but read-only for other users.
+     */
+    public $dirMode = 0775;
 
     /**
      * @var string 文件上传字段
@@ -68,11 +89,17 @@ class Uploader extends Object
     public function init()
     {
         parent::init();
+        $this->uploadRoot = Yii::getAlias($this->uploadRoot);
+        if (!is_dir($this->uploadRoot)) {
+            FileHelper::createDirectory($this->uploadRoot, $this->dirMode, true);
+        }
+        $this->uploads = Yii::getAlias($this->uploads);
+        //$this->fileAllowFiles = Yii::$app->settings->get('fileAllowFiles', 'attachment');
 
         $this->config = array_merge([
             'maxFiles' => 1,
-            'maxSize' => $this->getModule()->getMaxUploadByte(),
-            'extensions' => $this->getModule()->fileAllowFiles,
+            'maxSize' => $this->getMaxUploadByte(),
+            'extensions' => $this->fileAllowFiles,
             'checkExtensionByMimeType' => false,
         ], $this->config);
 
@@ -100,7 +127,7 @@ class Uploader extends Object
         $this->fileName = $this->getFileName();
         $dirName = dirname($this->filePath);
         if (!is_dir($dirName)) {//递归创建保存目录
-            FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+            FileHelper::createDirectory($dirName, $this->dirMode, true);
         }
         if (!($file->saveAs($this->filePath) && file_exists($this->filePath))) {
             $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
@@ -131,7 +158,7 @@ class Uploader extends Object
             $this->fileName = $this->getFileName();
             $dirName = dirname($this->filePath);
             if (!is_dir($dirName)) {//递归创建保存目录
-                FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+                FileHelper::createDirectory($dirName, $this->dirMode, true);
             }
             if (!($file->saveAs($this->filePath) && file_exists($this->filePath))) {
                 $this->stateInfo = Yii::t('attachment', 'An error occurred while saving the file.');
@@ -162,7 +189,7 @@ class Uploader extends Object
         $dirName = dirname($this->filePath);
 
         if (!is_dir($dirName)) {//递归创建保存目录
-            FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+            FileHelper::createDirectory($dirName, $this->dirMode, true);
         }
         //检查文件大小是否超出限制
         if (!$this->checkSize()) {
@@ -227,7 +254,7 @@ class Uploader extends Object
             }
 
             if (!is_dir($dirName)) {//递归创建保存目录
-                FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+                FileHelper::createDirectory($dirName, $this->dirMode, true);
             }
             //检查文件大小是否超出限制
             if (!$this->checkSize()) {
@@ -262,7 +289,7 @@ class Uploader extends Object
         $dirName = dirname($this->filePath);
 
         if (!is_dir($dirName)) {//递归创建保存目录
-            FileHelper::createDirectory($dirName, $this->getModule()->dirMode, true);
+            FileHelper::createDirectory($dirName, $this->dirMode, true);
         }
         //检查文件大小是否超出限制
         if (!$this->checkSize()) {
@@ -297,7 +324,7 @@ class Uploader extends Object
      */
     public function getFileInfo()
     {
-        $fullName = $this->getModule()->uploads . '/' . str_replace('\\', '/', $this->fullName);
+        $fullName = $this->uploads . '/' . str_replace('\\', '/', $this->fullName);
         return [
             "state" => $this->stateInfo,
             "url" => $fullName,
@@ -352,21 +379,13 @@ class Uploader extends Object
     private function getFilePath()
     {
         $fullName = $this->fullName;
-        $rootPath = $this->getModule()->uploadRoot;
+        $rootPath = $this->uploadRoot;
         if (substr($fullName, 0, 1) != '/') {
             $fullName = '/' . $fullName;
         }
         return $rootPath . $fullName;
     }
 
-    /**
-     * 获取附件模块实例
-     * @return \yuncms\attachment\Module
-     */
-    public function getModule()
-    {
-        return Yii::$app->getModule('attachment');
-    }
 
     /**
      * 保存到模型
@@ -384,5 +403,26 @@ class Uploader extends Object
             'type' => $this->fileType,
         ]);
         return $at->save();
+    }
+
+    /**
+     * 返回允许上传的最大大小单位 MB
+     * @return int the max upload size in MB
+     */
+    public function getMaxUploadSize()
+    {
+        $maxUpload = (int)(ini_get('upload_max_filesize'));
+        $maxPost = (int)(ini_get('post_max_size'));
+        $memoryLimit = (int)(ini_get('memory_limit'));
+        return min($maxUpload, $maxPost, $memoryLimit);
+    }
+
+    /**
+     * 返回允许上传的最大大小单位 Byte
+     * @return int the max upload size in Byte
+     */
+    public function getMaxUploadByte()
+    {
+        return $this->getMaxUploadSize() * 1024 * 1024;
     }
 }

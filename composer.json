@@ -1,31 +1,36 @@
 {
-    "name": "yuncms/yii2-attachment",
-    "description": "Flexible attachment module for Yii",
-    "keywords": ["yii2", "yii2-attachment", "attachment management"],
-    "type": "yii2-extension",
-    "license": "MIT",
-    "require": {
-        "yiisoft/yii2": "~2.0.6",
-        "creocoder/yii2-flysystem": "0.9.*"
+  "name": "yuncms/yii2-attachment",
+  "description": "Flexible attachment module for Yii",
+  "keywords": [
+    "yii2",
+    "yii2-attachment",
+    "attachment management"
+  ],
+  "type": "yii2-extension",
+  "license": "MIT",
+  "require": {
+    "yiisoft/yii2": "~2.0.6",
+    "yiisoft/yii2-httpclient": "~2.0.0",
+    "creocoder/yii2-flysystem": "0.9.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "yuncms\\attachment\\": ""
+    }
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "2.0-dev"
+    }
+  },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
     },
-    "autoload": {
-        "psr-4": {
-            "yuncms\\attachment\\": ""
-        }
-    },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "2.0-dev"
-        }
-    },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
-        },
-        {
-            "type": "composer",
-            "url": "https://packagist.phpcomposer.com"
-        }
-    ]
+    {
+      "type": "composer",
+      "url": "https://packagist.phpcomposer.com"
+    }
+  ]
 }
