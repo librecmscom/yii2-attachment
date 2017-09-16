@@ -13,8 +13,8 @@ use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use yii\validators\FileValidator;
 use yii\httpclient\Client;
-use yuncms\attachment\ModuleTrait;
 use yuncms\attachment\models\Attachment;
+use yuncms\attachment\Module;
 
 /**
  * Class Uploader
@@ -23,20 +23,10 @@ use yuncms\attachment\models\Attachment;
 class Uploader extends Component
 {
     /**
-     * @var string 附件访问路径
-     */
-    public $uploads = '@web/uploads';
-
-    /**
-     * @var string 附件存储路径
-     */
-    public $uploadRoot = '@root/uploads';
-
-    /**
      * 允许的文件后缀
      * @var string 允许的文件后缀
      */
-    public $fileAllowFiles;
+    public $fileAllowFiles = 'rar,zip,tar,gz,7z,bz2,cab,iso,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,md,xml,xmind';
 
     /**
      * @var integer the permission to be set for newly created directories.
@@ -89,13 +79,6 @@ class Uploader extends Component
     public function init()
     {
         parent::init();
-        $this->uploadRoot = Yii::getAlias($this->uploadRoot);
-        if (!is_dir($this->uploadRoot)) {
-            FileHelper::createDirectory($this->uploadRoot, $this->dirMode, true);
-        }
-        $this->uploads = Yii::getAlias($this->uploads);
-        //$this->fileAllowFiles = Yii::$app->settings->get('fileAllowFiles', 'attachment');
-
         $this->config = array_merge([
             'maxFiles' => 1,
             'maxSize' => $this->getMaxUploadByte(),
@@ -324,7 +307,7 @@ class Uploader extends Component
      */
     public function getFileInfo()
     {
-        $fullName = $this->uploads . '/' . str_replace('\\', '/', $this->fullName);
+        $fullName = Module::getStoreUrl() . '/' . str_replace('\\', '/', $this->fullName);
         return [
             "state" => $this->stateInfo,
             "url" => $fullName,
@@ -379,11 +362,10 @@ class Uploader extends Component
     private function getFilePath()
     {
         $fullName = $this->fullName;
-        $rootPath = $this->uploadRoot;
         if (substr($fullName, 0, 1) != '/') {
             $fullName = '/' . $fullName;
         }
-        return $rootPath . $fullName;
+        return Module::getStorePath() . $fullName;
     }
 
 

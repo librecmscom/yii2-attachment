@@ -19,12 +19,12 @@ class Setting extends Model
     /**
      * @var string 附件存储路径
      */
-    public $uploadRoot;
+    public $storePath;
 
     /**
      * @var string 附件访问路径
      */
-    public $uploads;
+    public $storeUrl;
 
     /**
      * @var string 图片上传最大大小
@@ -63,8 +63,8 @@ class Setting extends Model
     public function getTypes()
     {
         return [
-            'uploadRoot' => 'string',
-            'uploads' => 'string',
+            'storePath' => 'string',
+            'storeUrl' => 'string',
             'imageMaxSize' => 'string',
             'imageAllowFiles' => 'string',
             'videoMaxSize' => 'string',
@@ -74,12 +74,16 @@ class Setting extends Model
         ];
     }
 
+    /**
+     * 验证规则
+     * @return array
+     */
     public function rules()
     {
         return [
-            [['uploadRoot', 'uploads', 'imageMaxSize', 'imageAllowFiles', 'videoMaxSize', 'videoAllowFiles', 'fileMaxSize', 'fileAllowFiles'], 'string'],
-            ['uploadRoot', 'default', 'value' => '@root/uploads'],
-            ['uploads', 'default', 'value' => '@web/uploads'],
+            [['storePath', 'storeUrl', 'imageMaxSize', 'imageAllowFiles', 'videoMaxSize', 'videoAllowFiles', 'fileMaxSize', 'fileAllowFiles'], 'string'],
+            ['storePath', 'default', 'value' => '@root/uploads'],
+            ['storeUrl', 'default', 'value' => '@web/uploads'],
             ['imageMaxSize', 'default', 'value' => '2M'],
             ['imageAllowFiles', 'default', 'value' => 'png,jpg,jpeg,gif,bmp'],
             ['videoMaxSize', 'default', 'value' => '100M'],
@@ -95,8 +99,8 @@ class Setting extends Model
     public function attributeLabels()
     {
         return [
-            'uploadRoot' => Yii::t('attachment', 'Store'),
-            'uploads' => Yii::t('attachment', 'Storage Url'),
+            'storePath' => Yii::t('attachment', 'Store Path'),
+            'storeUrl' => Yii::t('attachment', 'Storage Url'),
             'imageMaxSize' => Yii::t('attachment', 'Image Max Size'),
             'imageAllowFiles' => Yii::t('attachment', 'Image Allow Files'),
             'videoMaxSize' => Yii::t('attachment', 'Video Max Size'),
