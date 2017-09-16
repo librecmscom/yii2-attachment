@@ -5,7 +5,7 @@ use xutl\inspinia\Box;
 use xutl\inspinia\Toolbar;
 use xutl\inspinia\Alert;
 use xutl\inspinia\ActiveForm;
-use yuncms\attachment\backend\models\Setting;
+use yuncms\attachment\models\Setting;
 
 /* @var $this yii\web\View */
 /* @var $model yuncms\user\backend\models\Settings */
@@ -31,7 +31,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             ],
                             [
                                 'label' => Yii::t('attachment', 'Settings'),
-                                'url' => ['settings'],
+                                'url' => ['setting'],
                             ],
                         ]
                     ]); ?>
@@ -45,12 +45,16 @@ $this->params['breadcrumbs'][] = $this->title;
                 'layout' => 'horizontal'
             ]); ?>
 
-            <?= $form->field($model, 'enableMachineReview')->inline()->checkbox([], false); ?>
+            <?= $form->field($model, 'uploadRoot') ?>
+            <?= $form->field($model, 'uploads') ?>
+            <?= $form->field($model, 'imageMaxSize') ?>
+            <?= $form->field($model, 'imageAllowFiles') ?>
+            <?= $form->field($model, 'videoMaxSize') ?>
+            <?= $form->field($model, 'videoAllowFiles') ?>
+            <?= $form->field($model, 'fileMaxSize') ?>
+            <?= $form->field($model, 'fileAllowFiles') ?>
 
-            <?= $form->field($model, 'idCardUrl') ?>
-            <?= $form->field($model, 'idCardPath') ?>
-
-            <?= Html::submitButton(Yii::t('authentication', 'Settings'), ['class' => 'btn btn-primary']) ?>
+            <?= Html::submitButton(Yii::t('attachment', 'Settings'), ['class' => 'btn btn-primary']) ?>
 
             <?php ActiveForm::end(); ?>
             <?php Box::end(); ?>

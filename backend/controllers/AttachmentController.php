@@ -39,7 +39,7 @@ class AttachmentController extends Controller
             //....
             'setting' => [
                 'class' => 'yuncms\system\actions\SettingsAction',
-                'modelClass' => 'yuncms\attachment\backend\models\Setting',
+                'modelClass' => 'yuncms\attachment\models\Setting',
                 //'scenario' => 'user',
                 //'scenario' => 'site', // Change if you want to re-use the model for multiple setting form.
                 'viewName' => 'setting'    // The form we need to render
