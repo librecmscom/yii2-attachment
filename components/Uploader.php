@@ -15,6 +15,7 @@ use yii\validators\FileValidator;
 use yii\httpclient\Client;
 use yuncms\attachment\models\Attachment;
 use yuncms\attachment\Module;
+use yuncms\attachment\AttachmentTrait;
 
 /**
  * Class Uploader
@@ -22,11 +23,7 @@ use yuncms\attachment\Module;
  */
 class Uploader extends Component
 {
-    /**
-     * 允许的文件后缀
-     * @var string 允许的文件后缀
-     */
-    public $fileAllowFiles = 'rar,zip,tar,gz,7z,bz2,cab,iso,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,md,xml,xmind';
+    use AttachmentTrait;
 
     /**
      * @var integer the permission to be set for newly created directories.
@@ -82,7 +79,7 @@ class Uploader extends Component
         $this->config = array_merge([
             'maxFiles' => 1,
             'maxSize' => $this->getMaxUploadByte(),
-            'extensions' => $this->fileAllowFiles,
+            'extensions' => $this->getSetting('fileAllowFiles'),
             'checkExtensionByMimeType' => false,
         ], $this->config);
 
