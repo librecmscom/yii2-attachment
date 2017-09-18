@@ -383,25 +383,4 @@ class Uploader extends Component
         ]);
         return $at->save();
     }
-
-    /**
-     * 返回允许上传的最大大小单位 MB
-     * @return int the max upload size in MB
-     */
-    public function getMaxUploadSize()
-    {
-        $maxUpload = (int)(ini_get('upload_max_filesize'));
-        $maxPost = (int)(ini_get('post_max_size'));
-        $memoryLimit = (int)(ini_get('memory_limit'));
-        return min($maxUpload, $maxPost, $memoryLimit);
-    }
-
-    /**
-     * 返回允许上传的最大大小单位 Byte
-     * @return int the max upload size in Byte
-     */
-    public function getMaxUploadByte()
-    {
-        return $this->getMaxUploadSize() * 1024 * 1024;
-    }
 }
