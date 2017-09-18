@@ -28,6 +28,8 @@ class M170916073830Add_defailt_settings extends Migration
             ['string','attachment','fileMaxSize','100M',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
             ['string','attachment','fileAllowFiles','rar,zip,tar,gz,7z,bz2,cab,iso,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,md,xml,xmind',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
         ]);
+
+        Yii::$app->settings->clearCache();
     }
 
     /**
