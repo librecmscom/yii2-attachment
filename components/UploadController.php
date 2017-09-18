@@ -39,7 +39,7 @@ class UploadController extends Controller
                     [
                         'allow' => true,
                         'actions' => [
-                            'upload', 'ueditor', 'um-upload', 'sn-upload', 'editor-md', 'dialog', 'multiple-upload',
+                            'upload', 'um-upload', 'editor-md', 'dialog', 'multiple-upload',
                             'file-upload', 'files-upload', 'image-upload', 'images-upload',
                         ],
                         'roles' => ['@'],
@@ -56,14 +56,8 @@ class UploadController extends Controller
     public function actions()
     {
         return [
-            'ueditor' => [
-                'class' => 'xutl\ueditor\UEditorAction',
-            ],
             'um-upload' => [
                 'class' => 'xutl\umeditor\UMeditorAction',
-            ],
-            'sn-upload' => [
-                'class' => 'xutl\summernote\SummerNoteAction',
             ],
             'editor-md' => [
                 'class' => 'xutl\editormd\MarkdownAction',
