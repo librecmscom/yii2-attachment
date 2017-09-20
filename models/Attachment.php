@@ -4,11 +4,15 @@
  * @copyright Copyright (c) 2012 TintSoft Technology Co. Ltd.
  * @license http://www.tintsoft.com/license/
  */
+
 namespace yuncms\attachment\models;
 
 use Yii;
 use yii\db\ActiveRecord;
 use yii\db\BaseActiveRecord;
+use yuncms\attachment\AttachmentTrait;
+use yuncms\attachment\jobs\AttachmentDeleteJob;
+use yuncms\user\models\User;
 
 /**
  * Class Attachment
@@ -29,6 +33,8 @@ use yii\db\BaseActiveRecord;
  */
 class Attachment extends ActiveRecord
 {
+    use AttachmentTrait;
+
     /**
      * 定义数据表
      */
@@ -104,7 +110,7 @@ class Attachment extends ActiveRecord
      */
     public function getUser()
     {
-        return $this->hasOne(Yii::$app->user->identityClass, ['id' => 'user_id']);
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
     }
 
     /**
@@ -112,13 +118,15 @@ class Attachment extends ActiveRecord
      */
     public function getUrl()
     {
-        return Yii::$app->getModule('attachment')->uploads . '/' . $this->path;
+        return $this->getSetting('storeUrl') . '/' . $this->path;
     }
 
     public function afterDelete()
     {
-        $path = Yii::$app->getModule('attachment')->uploadRoot . DIRECTORY_SEPARATOR . $this->path;
-        @unlink($path);
+        $path = $this->getSetting('storePath') . DIRECTORY_SEPARATOR . $this->path;
+        Yii::$app->queue->push(new AttachmentDeleteJob([
+            'path' => $path
+        ]));
         return parent::afterDelete();
     }
 }
