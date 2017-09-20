@@ -10,11 +10,10 @@ namespace yuncms\attachment\components;
 use Yii;
 use yii\base\Component;
 use yii\web\UploadedFile;
+use yii\httpclient\Client;
 use yii\helpers\FileHelper;
 use yii\validators\FileValidator;
-use yii\httpclient\Client;
 use yuncms\attachment\models\Attachment;
-use yuncms\attachment\Module;
 use yuncms\attachment\AttachmentTrait;
 
 /**
@@ -304,7 +303,7 @@ class Uploader extends Component
      */
     public function getFileInfo()
     {
-        $fullName = Module::getStoreUrl() . '/' . str_replace('\\', '/', $this->fullName);
+        $fullName = $this->getSetting('storeUrl') . '/' . str_replace('\\', '/', $this->fullName);
         return [
             "state" => $this->stateInfo,
             "url" => $fullName,
@@ -362,7 +361,7 @@ class Uploader extends Component
         if (substr($fullName, 0, 1) != '/') {
             $fullName = '/' . $fullName;
         }
-        return Module::getStorePath() . $fullName;
+        return $this->getSetting('storePath') . $fullName;
     }
 
 

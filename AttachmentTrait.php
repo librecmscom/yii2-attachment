@@ -32,8 +32,38 @@ trait AttachmentTrait
     }
 
     /**
+     * 获取允许上传的最大图像大小
+     * @return int
+     */
+    public function getImageMaxSizeByte()
+    {
+        $imageMaxSize = $this->getSetting('imageMaxSize');
+        return $this->getMaxUploadByte($imageMaxSize);
+    }
+
+    /**
+     * 获取允许上传的最大视频大小
+     * @return int
+     */
+    public function getVideoMaxSizeByte()
+    {
+        $videoMaxSize = $this->getSetting('videoMaxSize');
+        return $this->getMaxUploadByte($videoMaxSize);
+    }
+
+    /**
+     * 获取允许上传的最大文件大小
+     * @return int
+     */
+    public function getFileMaxSizeByte()
+    {
+        $fileMaxSize = $this->getSetting('fileMaxSize');
+        return $this->getMaxUploadByte($fileMaxSize);
+    }
+
+    /**
      * 获取允许上传的图像 mimeTypes 列表
-     * @return bool|mixed|string
+     * @return array ['image/jpg','image/png']
      */
     public function getAcceptImageMimeTypes()
     {
@@ -58,6 +88,26 @@ trait AttachmentTrait
             $value = '.' . $value;
         });
         return $extensions;
+    }
+
+    /**
+     * 获取一个暂未使用的路径用来存放临时文件
+     * @param string $path
+     * @return string
+     */
+    protected function getUnusedPath($path)
+    {
+        $newPath = $path;
+        $info = pathinfo($path);
+        $suffix = 1;
+        while (file_exists($newPath)) {
+            $newPath = $info['dirname'] . DIRECTORY_SEPARATOR . "{$info['filename']}_{$suffix}";
+            if (isset($info['extension'])) {
+                $newPath .= ".{$info['extension']}";
+            }
+            $suffix++;
+        }
+        return $newPath;
     }
 
     /**
