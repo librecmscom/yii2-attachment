@@ -18,6 +18,20 @@
     }
   },
   "extra": {
+    "yuncms": {
+      "name": "attachment",
+      "i18n": {
+        "class":"yii\\i18n\\PhpMessageSource",
+        "basePath":"@yuncms/attachment/message"
+      },
+      "migrationNamespace": "@yuncms/attachment/migrations",
+      "backend": {
+        "class": "yuncms\\attachment\\backend\\Module"
+      },
+      "frontend": {
+        "class": "yuncms\\attachment\\frontend\\Module"
+      }
+    },
     "branch-alias": {
       "dev-master": "2.0-dev"
     }
