@@ -23,7 +23,7 @@
       "i18n": {
         "class": "yii\\i18n\\PhpMessageSource",
         "sourceLanguage": "en-US",
-        "basePath": "@yuncms/attachment/message"
+        "basePath": "@yuncms/attachment/messages"
       },
       "migrationNamespace": "yuncms\\attachment\\migrations",
       "backend": {
