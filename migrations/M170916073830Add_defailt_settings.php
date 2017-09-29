@@ -23,7 +23,7 @@ class M170916073830Add_defailt_settings extends Migration
             ['string','attachment','imageAllowFiles','png,jpg,jpeg,gif,bmp',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
 
             ['string','attachment','videoMaxSize','100M',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
-            ['string','attachment','videoAllowFiles','flv,swf,mkv,avi,rm,rmvb,mpeg,mpg,ogg,ogv,mov,wmv,mp4,webm,mp3,wav,mid',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
+            ['string','attachment','videoAllowFiles','3gp,asf,avi,dat,dv,flv,f4v,gif,m2t,m3u8,m4v,mj2,mjpeg,mkv,mov,mp4,mpe,mpg,mpeg,mts,ogg,qt,rm,rmvb,swf,ts,vob,wmv,webm',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
 
             ['string','attachment','fileMaxSize','100M',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
             ['string','attachment','fileAllowFiles','rar,zip,tar,gz,7z,bz2,cab,iso,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,md,xml,xmind',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
