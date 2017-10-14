@@ -15,7 +15,7 @@ class M170109093051Create_attachment_table extends Migration
         }
         $this->createTable('{{%attachment}}', [
             'id' => $this->primaryKey(),
-            'user_id' => $this->integer()->comment('用户ID'),
+            'user_id' => $this->integer()->unsigned()->comment('用户ID'),
             'filename' => $this->string(255)->notNull()->comment('文件名'),
             'original_name'=> $this->string(255)->notNull()->comment('文件原始名称'),
             'size' => $this->integer()->defaultValue(0)->comment('字节数'),
