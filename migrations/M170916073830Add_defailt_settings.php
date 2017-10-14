@@ -17,7 +17,7 @@ class M170916073830Add_defailt_settings extends Migration
     {
         $this->batchInsert('{{%settings}}', ['type','section','key','value','active','created','modified'], [
             ['string','attachment','storePath','@root/uploads',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
-            ['string','attachment','storeUrl','@web/uploads',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
+            ['string','attachment','storeUrl','http://127.0.0.1/uploads',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
 
             ['string','attachment','imageMaxSize','2M',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],
             ['string','attachment','imageAllowFiles','png,jpg,jpeg,gif,bmp',1,date('Y-m-d H:i:s'),date('Y-m-d H:i:s')],

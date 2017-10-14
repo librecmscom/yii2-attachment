@@ -83,7 +83,7 @@ class Setting extends Model
         return [
             [['storePath', 'storeUrl', 'imageMaxSize', 'imageAllowFiles', 'videoMaxSize', 'videoAllowFiles', 'fileMaxSize', 'fileAllowFiles'], 'string'],
             ['storePath', 'default', 'value' => '@root/uploads'],
-            ['storeUrl', 'default', 'value' => '@web/uploads'],
+            ['storeUrl', 'url'],
             ['imageMaxSize', 'default', 'value' => '2M'],
             ['imageAllowFiles', 'default', 'value' => 'png,jpg,jpeg,gif,bmp'],
             ['videoMaxSize', 'default', 'value' => '100M'],
